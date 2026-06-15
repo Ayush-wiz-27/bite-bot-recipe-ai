@@ -36,7 +36,7 @@ const downloadAudio = async (url, outputPath) => {
 
 const transcribeAudio = async (filePath) => {
   try {
-    // 🚀 Primary: whisper-large-v3-turbo (Fast & High Limit)
+    // Primary: whisper-large-v3-turbo (Fast & High Limit)
     const response = await openai.audio.transcriptions.create({
       file: fs.createReadStream(filePath),
       model: "whisper-large-v3-turbo",
@@ -44,7 +44,7 @@ const transcribeAudio = async (filePath) => {
     return response.text;
   } catch (error) {
     if (error.status === 429) {
-      // 🥈 Fallback: whisper-large-v3 (Solid but stricter limits)
+      // Fallback: whisper-large-v3 (Solid but stricter limits)
       try {
         const response = await openai.audio.transcriptions.create({
           file: fs.createReadStream(filePath),

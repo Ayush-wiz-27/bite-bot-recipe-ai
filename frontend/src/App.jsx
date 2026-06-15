@@ -28,7 +28,7 @@ function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
 
-// 💥 EXPLOSION VARIANTS
+// EXPLOSION VARIANTS
 const explosionContainer = {
   hidden: { opacity: 0 },
   show: {
@@ -61,10 +61,10 @@ function App() {
   const [activeIngredient, setActiveIngredient] = useState(null);
   const [theme, setTheme] = useState("dark"); // 'dark' | 'light'
   const [showIngredientsMobile, setShowIngredientsMobile] = useState(false);
-  const [isExploding, setIsExploding] = useState(false); // 💥 New State
+  const [isExploding, setIsExploding] = useState(false); // New State
   const scrollRef = useRef(null);
 
-  // 🌓 Sync theme to document
+  // Sync theme to document
   useEffect(() => {
     if (theme === "light") {
       document.documentElement.classList.add("light");
@@ -73,7 +73,7 @@ function App() {
     }
   }, [theme]);
 
-  // 🔊 Speak logic
+  // Speak logic
   const speakStep = (text) => {
     if (!text) return;
     window.speechSynthesis.cancel();
@@ -83,7 +83,7 @@ function App() {
     window.speechSynthesis.speak(speech);
   };
 
-  // 🎤 Voice Recognition
+  // Voice Recognition
   const startListening = () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
@@ -197,7 +197,7 @@ function App() {
   return (
     <div className="min-h-screen relative overflow-x-hidden selection:bg-primary-saffron/30 font-inter transition-colors duration-700">
 
-      {/* 💥 THE SUPERNOVA OVERLAY (CINEMATIC) */}
+      {/* THE SUPERNOVA OVERLAY (CINEMATIC) */}
       <AnimatePresence>
         {isExploding && (
           <motion.div
@@ -232,7 +232,7 @@ function App() {
         )}
       </AnimatePresence>
 
-      {/* 🌌 CINEMATIC ATELIER BACKGROUND */}
+      {/* CINEMATIC ATELIER BACKGROUND */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <div className="absolute top-[-15%] left-[-10%] w-[60%] h-[60%] bg-[#f59e0b]/5 blur-[150px] rounded-full animate-pulse-slow" />
         <div className="absolute bottom-[5%] right-[-5%] w-[40%] h-[40%] bg-primary-saffron/3 blur-[120px] rounded-full" />
@@ -240,7 +240,7 @@ function App() {
 
       <div className="relative z-10 max-w-[1750px] mx-auto min-h-screen flex flex-col p-4 md:p-10">
 
-        {/* 🏷️ NAVIGATION / HEADER */}
+        {/* NAVIGATION / HEADER */}
         <header className="flex justify-between items-center mb-8 lg:mb-16 px-2">
           <div className="flex items-center gap-3 lg:gap-4">
             <motion.div
@@ -289,7 +289,7 @@ function App() {
 
         <AnimatePresence mode="wait">
           {!recipe ? (
-            /* 🏠 LUXURY HOME SCREEN */
+            /* LUXURY HOME SCREEN */
             <motion.div
               key="home"
               initial={{ opacity: 0, scale: 0.95 }}
@@ -343,7 +343,7 @@ function App() {
               </div>
             </motion.div>
           ) : (
-            /* 🍳 DASHBOARD (REVEAL AFTER EXPLOSION) */
+            /* DASHBOARD (REVEAL AFTER EXPLOSION) */
             <motion.div
               key="cooking"
               variants={explosionContainer}
@@ -351,7 +351,7 @@ function App() {
               animate="show"
               className="flex-1 flex flex-col lg:grid lg:grid-cols-12 gap-6 lg:gap-12 items-stretch"
             >
-              {/* 🍱 COLUMN 1: ELEMENTS */}
+              {/* COLUMN 1: ELEMENTS */}
               <motion.aside
                 variants={explosionItem}
                 className={cn(
@@ -438,7 +438,7 @@ function App() {
                 </div>
               </motion.aside>
 
-              {/* 🎯 COLUMN 2: THE ATELIER */}
+              {/* COLUMN 2: THE ATELIER */}
               <motion.main
                 variants={explosionItem}
                 className="lg:col-span-6 flex flex-col items-center justify-center relative py-4 lg:py-0"
@@ -494,7 +494,7 @@ function App() {
                 </div>
               </motion.main>
 
-              {/* 💬 COLUMN 3: CHAT */}
+              {/* COLUMN 3: CHAT */}
               <motion.aside
                 variants={explosionItem}
                 className="lg:col-span-3 flex flex-col h-full space-y-4 lg:space-y-8 py-4 lg:py-0"
@@ -536,7 +536,7 @@ function App() {
           )}
         </AnimatePresence>
 
-        {/* 🎙️ VOICE PILL */}
+        {/* VOICE PILL */}
         {!loading && (
           <div className="fixed bottom-6 right-6 lg:bottom-12 lg:right-12 z-50 flex items-center gap-4">
             <AnimatePresence>

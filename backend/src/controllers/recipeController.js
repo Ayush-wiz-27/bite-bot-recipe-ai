@@ -2,14 +2,14 @@ const OpenAI = require("openai");
 
 const { getTranscriptFromVideo, convertTranscript } = require("../services/aiService");
 
-// 🔑 Groq client (same as aiService)
+// Groq client (same as aiService)
 const openai = new OpenAI({
   apiKey: process.env.GROQ_API_KEY || process.env.OPENAI_API_KEY,
   baseURL: "https://api.groq.com/openai/v1",
 });
 
 
-// 🥇 Generate Recipe
+// Generate Recipe
 const generateRecipe = async (req, res) => {
   try {
     const { url } = req.body;
@@ -28,7 +28,7 @@ const generateRecipe = async (req, res) => {
 };
 
 
-// 🥈 Ingredient Q&A (NEW 🔥)
+// Ingredient Q&A (NEW)
 const ingredientQuery = async (req, res) => {
   try {
     const { question, ingredients } = req.body;
