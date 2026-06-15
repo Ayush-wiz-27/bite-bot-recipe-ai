@@ -1,0 +1,133 @@
+@import "tailwindcss";
+
+@theme {
+  --font-manrope: "Manrope", sans-serif;
+  --font-inter: "Inter", sans-serif;
+
+  /* Bite Bot Cinematic Palette */
+  --color-background: #000000;
+  --color-navy-base: #0f172a;
+  --color-primary-saffron: #f59e0b;
+  --color-primary-burnt: #ea580c;
+
+  /* Lite Mode: Slate & Saffron */
+  --color-slate-white: #f8fafc;
+  --color-midnight-slate: #0f172a;
+
+  --radius-xl: 1.5rem;
+  --radius-2xl: 2rem;
+  --radius-3xl: 2.5rem;
+
+  --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-shimmer: shimmer 2s infinite linear;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+:root {
+  --theme-bg: #000;
+  --theme-text: #f4f4f5;
+  --theme-surface: rgba(15, 23, 42, 0.4);
+  --theme-border: rgba(255, 255, 255, 0.08);
+  --theme-glass-blur: 32px;
+  --theme-accent: #f59e0b;
+  --theme-muted: #71717a;
+}
+
+:root.light {
+  --theme-bg: #f8fafc;
+  --theme-text: #0f172a;
+  --theme-surface: rgba(255, 255, 255, 0.95);
+  --theme-border: rgba(15, 23, 42, 0.05);
+  --theme-glass-blur: 16px;
+  --theme-accent: #f59e0b;
+  --theme-muted: #64748b;
+}
+
+@layer base {
+  body {
+    @apply antialiased selection:bg-primary-saffron/30 transition-colors duration-700;
+    color: var(--theme-text);
+    background-color: var(--theme-bg);
+    font-family: var(--font-inter);
+    margin: 0;
+    min-height: 100vh;
+  }
+
+  body:not(.light) {
+    background-image: radial-gradient(at 0% 0%, #0f172a 0px, transparent 50%),
+      radial-gradient(at 100% 100%, #000 0px, transparent 50%);
+    background-attachment: fixed;
+  }
+
+  body.light {
+    background-image: radial-gradient(at 100% 0%, #e2e8f0 0px, transparent 50%),
+      radial-gradient(at 0% 100%, #f1f5f9 0px, transparent 50%);
+    background-attachment: fixed;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-manrope);
+    @apply tracking-tighter;
+  }
+}
+
+@layer components {
+
+  /* Ultra-Luxury Glassmorphism */
+  .glass-island {
+    background: var(--theme-surface);
+    backdrop-filter: blur(var(--theme-glass-blur));
+    -webkit-backdrop-filter: blur(var(--theme-glass-blur));
+    border: 1px solid var(--theme-border);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+  }
+
+  .glass-pill {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--theme-border);
+  }
+
+  :root.light .glass-pill {
+    background: rgba(0, 0, 0, 0.03);
+  }
+
+  /* Vitality Status Colors (Light Mode Adjusted) */
+  .vital-essential {
+    @apply border-red-500/10 bg-red-500/5;
+  }
+
+  .vital-optional {
+    @apply border-yellow-500/10 bg-yellow-500/5;
+  }
+
+  .vital-garnishing {
+    @apply border-green-500/10 bg-green-500/5;
+  }
+}
+
+@media (max-width: 768px) {
+  .glass-island {
+    border-radius: 2rem;
+    padding: 1.5rem !important;
+  }
+}
+
+/* 💥 SUPERNOVA SHIMMER */
+.shimmer-bg {
+  background: linear-gradient(90deg, transparent, rgba(245, 158, 11, 0.1), transparent);
+  background-size: 200% 100%;
+}
