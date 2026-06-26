@@ -117,6 +117,7 @@ export default function Dashboard({ setIsLoggedIn }) {
     speech.rate = 1.1;
     window.speechSynthesis.speak(speech);
   };
+
   const handleSave = async () => {
     const token = localStorage.getItem("token");
 

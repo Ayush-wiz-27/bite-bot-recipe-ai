@@ -10,6 +10,7 @@ export default function AuthPage({ setIsLoggedIn }) {
   const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
+    console.log("HANDLE SUBMIT CALLED");
     e.preventDefault();
     setLoading(true);
     setError("");
@@ -17,6 +18,7 @@ export default function AuthPage({ setIsLoggedIn }) {
     const endpoint = isLogin ? "/api/auth/login" : "/api/auth/signup";
 
     try {
+      console.log(import.meta.env.VITE_API_URL);
       const res = await fetch(`${import.meta.env.VITE_API_URL}${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
