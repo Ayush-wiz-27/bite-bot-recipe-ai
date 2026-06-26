@@ -10,10 +10,12 @@ const app = express();
 
 
 // Middleware
+
+
 app.use(cors({
   origin: [
     "http://localhost:5173",
-    "https://bite-bot-recipe-h6yn4knhc-ayush-chughs-projects-002915af.vercel.app"
+    "https://bite-bot-recipe-ai.vercel.app"
   ],
   credentials: true,
 }));
