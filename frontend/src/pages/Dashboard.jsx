@@ -20,7 +20,10 @@ import {
   Zap,
   Command,
   Eye,
-  LogOut
+  LogOut,
+  Menu,
+  X,
+  Save,
 } from "lucide-react";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -71,6 +74,7 @@ export default function Dashboard({ setIsLoggedIn }) {
   const [ragQuery, setRagQuery] = useState("");
   const [ragResults, setRagResults] = useState([]);
   const [ragAnswer, setRagAnswer] = useState("");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   //Fetch recipes saved
   const loadSavedRecipes = async () => {
@@ -334,14 +338,18 @@ export default function Dashboard({ setIsLoggedIn }) {
 
       {/* CINEMATIC ATELIER BACKGROUND */}
       <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute top-[-15%] left-[-10%] w-[60%] h-[60%] bg-[#f59e0b]/5 blur-[150px] rounded-full animate-pulse-slow" />
-        <div className="absolute bottom-[5%] right-[-5%] w-[40%] h-[40%] bg-primary-saffron/3 blur-[120px] rounded-full" />
+        {theme === "light" && (
+          <>
+            <div className="absolute top-[-15%] left-[-10%] w-[60%] h-[60%] bg-[#f59e0b]/5 blur-[150px] rounded-full animate-pulse-slow" />
+            <div className="absolute bottom-[5%] right-[-5%] w-[40%] h-[40%] bg-primary-saffron/3 blur-[120px] rounded-full" />
+          </>
+        )}
       </div>
 
       <div className="relative z-10 max-w-[1750px] mx-auto min-h-screen flex flex-col p-4 md:p-10">
 
         {/* NAVIGATION / HEADER */}
-        <header className="flex justify-between items-center mb-8 lg:mb-16 px-2">
+        {/* <header className="flex justify-between items-center mb-8 lg:mb-16 px-2">
           <div className="flex items-center gap-3 lg:gap-4">
             <motion.div
               whileHover={{ rotate: 180 }}
@@ -353,7 +361,7 @@ export default function Dashboard({ setIsLoggedIn }) {
               <h1 className="text-lg lg:text-3xl font-manrope font-extrabold tracking-tighter transition-colors duration-700">
                 <span className="text-primary-saffron text-glow-saffron italic">Bite</span> Bot
               </h1>
-              <p className="text-[8px] lg:text-[9px] uppercase tracking-[0.4em] font-black text-theme-muted mt-0.5">Atelier No. 001</p>
+              <p className="text-[8px] lg:text-[9px] uppercase tracking-[0.4em] font-black text-theme-muted mt-0.5"></p>
             </div>
           </div>
 
@@ -397,7 +405,7 @@ export default function Dashboard({ setIsLoggedIn }) {
 
             <button
               onClick={() => setActiveTab(activeTab === 'saved' ? 'generate' : 'saved')}
-              className="text-[10px] lg:text-xs font-manrope font-black tracking-[0.1em] text-primary-saffron hover:text-white transition-all uppercase flex items-center gap-1"
+              className="text-[10px] lg:text-xs font-manrope font-black tracking-[0.1em] text-theme-text hover:text-theme-accent transition-all uppercase flex items-center gap-1"
             >
               {activeTab === 'saved' ? 'Back' : 'Saved Recipes'}
             </button>
@@ -411,6 +419,197 @@ export default function Dashboard({ setIsLoggedIn }) {
               </button>
             )}
           </div>
+        </header> */}
+
+        <header className="flex justify-between items-center mb-8 lg:mb-16 px-2 relative">
+
+          {/* Logo */}
+          <div className="flex items-center gap-3 lg:gap-4">
+            <motion.div
+              whileHover={{ rotate: 180 }}
+              className="bg-primary-saffron p-2 lg:p-2.5 rounded-xl lg:rounded-2xl shadow-[0_0_20px_rgba(245,158,11,0.4)]"
+            >
+              <ChefHat className="text-black w-5 h-5 lg:w-6 lg:h-6" />
+            </motion.div>
+
+            <div>
+              <h1 className="text-lg lg:text-3xl font-manrope font-extrabold tracking-tighter">
+                <span className="text-primary-saffron italic">Bite</span> Bot
+              </h1>
+              <p className="text-[10px] uppercase tracking-[0.25em] text-theme-muted">
+                Your AI Cooking Companion
+              </p>
+            </div>
+          </div>
+
+          {/* Desktop Menu */}
+          <div className="hidden lg:flex items-center gap-6">
+
+            <button
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="flex bg-zinc-900/50 p-1 rounded-full border border-white/10"
+            >
+              <div className={cn(
+                "p-2 rounded-full",
+                theme === "dark"
+                  ? "bg-primary-saffron text-black"
+                  : "text-zinc-500"
+              )}>
+                <Moon size={16} />
+              </div>
+
+              <div className={cn(
+                "p-2 rounded-full",
+                theme === "light"
+                  ? "bg-primary-saffron text-white"
+                  : "text-zinc-500"
+              )}>
+                <Sun size={16} />
+              </div>
+            </button>
+
+            {recipe && (
+              <button
+                onClick={handleSave}
+                className="text-green-400 font-bold uppercase text-xs"
+              >
+                Save
+              </button>
+            )}
+
+            <button
+              onClick={() =>
+                setActiveTab(activeTab === "saved" ? "generate" : "saved")
+              }
+              className="font-bold uppercase text-xs"
+            >
+              {activeTab === "saved" ? "Back" : "Saved Recipes"}
+            </button>
+
+            {recipe && (
+              <button
+                onClick={() => setRecipe(null)}
+                className="text-primary-saffron font-bold uppercase text-xs"
+              >
+                Reset
+              </button>
+            )}
+
+            <button
+              onClick={() => {
+                localStorage.removeItem("token");
+                setIsLoggedIn(false);
+              }}
+              className="text-red-400 font-bold uppercase text-xs flex items-center gap-1"
+            >
+              <LogOut size={15} />
+              Logout
+            </button>
+
+          </div>
+
+          {/* Mobile Hamburger */}
+          <button
+            className="lg:hidden"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+          </button>
+
+          {/* Mobile Dropdown */}
+          <AnimatePresence>
+            {mobileMenuOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: -15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                className="absolute top-20 right-0 w-60 glass-island rounded-2xl p-5 flex flex-col gap-4 z-50 lg:hidden"
+              >
+                {/* <button
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-2 pb-3 border-b border-white/10 text-left hover:text-primary-saffron transition-colors"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                  <span className="font-semibold">Back</span>
+                </button> */}
+                <button
+                  onClick={() => {
+                    setActiveTab("generate");
+                    setMobileMenuOpen(false);
+                  }}
+                  className="text-left flex items-center gap-2 hover:text-primary-saffron transition-colors"
+                >
+                  <Layers className="w-4 h-4" />
+                  Dashboard
+                </button>
+
+                <button
+                  onClick={() => {
+                    setTheme(theme === "dark" ? "light" : "dark");
+                    setMobileMenuOpen(false);
+                  }}
+                  className="text-left"
+                >
+                  {theme === "dark"
+                    ? "☀️ Light Mode"
+                    : "🌙 Dark Mode"}
+                </button>
+
+                {recipe && (
+                  <button
+                    onClick={() => {
+                      handleSave();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="text-left"
+                  >
+
+                    Save Recipe
+                  </button>
+                )}
+
+                <button
+                  onClick={() => {
+                    setActiveTab(
+                      activeTab === "saved"
+                        ? "generate"
+                        : "saved"
+                    );
+                    setMobileMenuOpen(false);
+                  }}
+                  className="text-left"
+                >
+                  <UtensilsCrossed className="w-4 h-4 mr-2" />
+                  Saved Recipes
+                </button>
+
+                {recipe && (
+                  <button
+                    onClick={() => {
+                      setRecipe(null);
+                      setMobileMenuOpen(false);
+                    }}
+                    className="text-left"
+                  >
+                    Reset
+                  </button>
+                )}
+
+                <button
+                  onClick={() => {
+                    localStorage.removeItem("token");
+                    setIsLoggedIn(false);
+                  }}
+                  className="text-left text-red-400"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Logout
+                </button>
+
+              </motion.div>
+            )}
+          </AnimatePresence>
+
         </header>
 
         {activeTab === 'generate' && (
@@ -430,7 +629,7 @@ export default function Dashboard({ setIsLoggedIn }) {
                   className="mb-8 lg:mb-12"
                 >
                   <div className="inline-flex items-center gap-2 lg:gap-3 glass-pill px-6 lg:px-8 py-2.5 lg:py-3 rounded-full text-[9px] lg:text-[11px] font-black text-primary-saffron tracking-[0.2em] uppercase border-white/10">
-                    <Sparkles className="w-3.5 h-3.5" /> High Fidelity
+                    <Sparkles className="w-3.5 h-3.5" /> Kitchen Assistant
                   </div>
                 </motion.div>
 
@@ -721,7 +920,7 @@ export default function Dashboard({ setIsLoggedIn }) {
                   className="lg:col-span-3 flex flex-col h-full space-y-4 lg:space-y-8 py-4 lg:py-0"
                 >
                   <h3 className="text-[10px] lg:text-[12px] font-manrope font-black uppercase tracking-[0.3em] text-primary-saffron flex items-center gap-2 px-2">
-                    <MessageSquare className="w-3.5 h-3.5" /> Concierge
+                    <MessageSquare className="w-3.5 h-3.5" /> Chat
                   </h3>
 
                   <div className="glass-island flex-1 rounded-[2rem] lg:rounded-[3.5rem] flex flex-col overflow-hidden border-white/20 max-h-[40vh] lg:max-h-[75vh]">
@@ -780,7 +979,7 @@ export default function Dashboard({ setIsLoggedIn }) {
                     <div className="w-16 h-16 rounded-full bg-primary-saffron/10 flex items-center justify-center mb-6 text-3xl">
                       {r.recipe?.ingredients?.[0]?.emoji || '🥘'}
                     </div>
-                    <h3 className="text-lg lg:text-xl font-bold font-manrope mb-6 text-white tracking-tight line-clamp-2">
+                    <h3 className="text-lg lg:text-xl font-bold font-manrope mb-6 text-theme-text tracking-tight line-clamp-2">
                       {r.title || `Recipe #${i + 1}`}
                     </h3>
                     <button
@@ -800,7 +999,7 @@ export default function Dashboard({ setIsLoggedIn }) {
         )}
 
         {/* VOICE PILL */}
-        {!loading && (
+        {recipe && !loading && (
           <div className="fixed bottom-6 right-6 lg:bottom-12 lg:right-12 z-50 flex items-center gap-4">
             <AnimatePresence>
               {listening && (
@@ -849,7 +1048,7 @@ export default function Dashboard({ setIsLoggedIn }) {
               <ChefHat className="w-4 h-4 text-primary-saffron" />
             </div>
             <span className="text-white font-manrope font-black text-[11px] tracking-widest uppercase pt-0.5">
-              Recipe Stored in Atelier
+              Recipe Added to Your Cookbook
             </span>
           </motion.div>
         )}

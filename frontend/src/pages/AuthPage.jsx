@@ -15,7 +15,7 @@ export default function AuthPage({ setIsLoggedIn }) {
     setError("");
 
     const endpoint = isLogin ? "/api/auth/login" : "/api/auth/signup";
-    
+
     try {
       const res = await fetch(`http://localhost:8000${endpoint}`, {
         method: "POST",
@@ -52,7 +52,7 @@ export default function AuthPage({ setIsLoggedIn }) {
         <div className="absolute bottom-[5%] right-[-5%] w-[40%] h-[40%] bg-primary-saffron/5 blur-[120px] rounded-full" />
       </div>
 
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
@@ -73,17 +73,17 @@ export default function AuthPage({ setIsLoggedIn }) {
 
         <div className="glass-island p-8 rounded-[2.5rem] border-white/10 shadow-2xl backdrop-blur-xl">
           <div className="flex gap-4 mb-8">
-            <button 
+            <button
               onClick={() => { setIsLogin(true); setError(""); }}
               className={`flex-1 pb-3 text-sm font-bold uppercase tracking-widest transition-all border-b-2 ${isLogin ? 'border-primary-saffron text-primary-saffron' : 'border-transparent text-zinc-500 hover:text-zinc-300'}`}
             >
-              Access
+              Sign In
             </button>
-            <button 
+            <button
               onClick={() => { setIsLogin(false); setError(""); }}
               className={`flex-1 pb-3 text-sm font-bold uppercase tracking-widest transition-all border-b-2 ${!isLogin ? 'border-primary-saffron text-primary-saffron' : 'border-transparent text-zinc-500 hover:text-zinc-300'}`}
             >
-              Enroll
+              Sign Up
             </button>
           </div>
 
@@ -101,7 +101,7 @@ export default function AuthPage({ setIsLoggedIn }) {
                 placeholder="chef@atelier.com"
               />
             </div>
-            
+
             <div>
               <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-theme-muted mb-2 ml-4">
                 Passcode
@@ -131,7 +131,7 @@ export default function AuthPage({ setIsLoggedIn }) {
                 <Loader2 className="w-5 h-5 animate-spin" />
               ) : (
                 <>
-                  {isLogin ? 'ENTER ATELIER' : 'JOIN EXPERIMENT'} 
+                  {isLogin ? 'Lets Cook' : 'Create Account'}
                   <ArrowRight className="w-5 h-5" />
                 </>
               )}

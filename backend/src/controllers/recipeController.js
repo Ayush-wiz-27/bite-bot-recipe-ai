@@ -82,7 +82,7 @@ Ingredients: ${ingredientsText}
     });
 
     res.json({
-      message: "Recipe saved ✅",
+      message: "Recipe saved ",
       newRecipe,
     });
   } catch (error) {
