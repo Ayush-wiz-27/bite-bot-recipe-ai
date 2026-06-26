@@ -80,7 +80,7 @@ export default function Dashboard({ setIsLoggedIn }) {
   const loadSavedRecipes = async () => {
     const token = localStorage.getItem("token");
 
-    const res = await fetch("http://localhost:8000/api/recipe/history", {
+    const res = await fetch("${import.meta.env.VITE_API_URL}/api/recipe/history", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -120,7 +120,7 @@ export default function Dashboard({ setIsLoggedIn }) {
   const handleSave = async () => {
     const token = localStorage.getItem("token");
 
-    await fetch("http://localhost:8000/api/recipe/save", {
+    await fetch("${import.meta.env.VITE_API_URL}/api/recipe/save", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -183,7 +183,7 @@ export default function Dashboard({ setIsLoggedIn }) {
     setRecipe(null);
     try {
       console.log("Engaging Bite Bot for URL:", url);
-      const res = await fetch("http://localhost:8000/api/recipe/generate", {
+      const res = await fetch("${import.meta.env.VITE_API_URL}/api/recipe/generate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -225,7 +225,7 @@ export default function Dashboard({ setIsLoggedIn }) {
         setLoading(true);
       }
 
-      const res = await fetch("http://localhost:8000/api/recipe/rag", {
+      const res = await fetch("${import.meta.env.VITE_API_URL}/api/recipe/rag", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

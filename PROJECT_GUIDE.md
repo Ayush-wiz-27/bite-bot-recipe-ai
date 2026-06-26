@@ -170,7 +170,7 @@ Open **two terminal windows**:
 **Terminal 1 — Backend:**
 ```bash
 cd backend
-npm run dev          # Starts server on http://localhost:8000
+npm run dev          # Starts server on ${import.meta.env.VITE_API_URL}
 ```
 
 **Terminal 2 — Frontend:**
@@ -287,7 +287,7 @@ All state is managed with React's `useState` hook:
 ### 6.2 Key Functions
 
 #### `handleSubmit()`
-1. Sends POST to `http://localhost:8000/api/recipe/generate` with the URL
+1. Sends POST to `${import.meta.env.VITE_API_URL}/api/recipe/generate` with the URL
 2. Triggers the "Supernova" animation (`isExploding = true`)
 3. After 2 seconds, sets the recipe data and transitions to the dashboard
 
@@ -305,7 +305,7 @@ All state is managed with React's `useState` hook:
   - **Anything else** → sends to AI as a question
 
 #### `askAI(question)`
-- Sends POST to `http://localhost:8000/api/recipe/query`
+- Sends POST to `${import.meta.env.VITE_API_URL}/api/recipe/query`
 - Includes the question + current ingredient list
 - Adds the response to chat history
 - Speaks the answer aloud
@@ -409,7 +409,7 @@ npm run dev
 
 ## 8. API Reference
 
-### Base URL: `http://localhost:8000`
+### Base URL: `${import.meta.env.VITE_API_URL}`
 
 ### `GET /`
 Health check.
@@ -489,7 +489,7 @@ Here's exactly what happens when you paste a URL and click **ENGAGE**:
 │  1. User types URL into input                                   │
 │  2. Clicks ENGAGE → handleSubmit() fires                        │
 │  3. Sets loading=true, shows spinner                            │
-│  4. fetch("http://localhost:8000/api/recipe/generate",          │
+│  4. fetch("${import.meta.env.VITE_API_URL}/api/recipe/generate",          │
 │         { method: "POST", body: { url } })                      │
 │                                                                 │
 │         ──── HTTP POST ────►                                    │
