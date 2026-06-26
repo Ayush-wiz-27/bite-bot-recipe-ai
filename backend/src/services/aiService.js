@@ -102,10 +102,15 @@ From the following transcript, extract:
    - alternatives
    - skippable
    - impact)
-2. Steps (clear, short, ordered)
+2.Title:
+- A short, clean recipe name along with who is the creator of this video (2–5 words)
+- No emojis, no hype words like "best", "ultimate"
+- Example: "Butter Chicken by [CREATOR NAME]", "Paneer Tikka by [CREATOR NAME]", "Masala Omelette by [CREATOR NAME]"
+3. Steps (clear, short, ordered)
 
 Return ONLY valid JSON in this format:
 {
+  "title": "",
   "ingredients": [
     {
       "name": "",
@@ -124,6 +129,7 @@ Return ONLY valid JSON in this format:
   "steps": []
 }
 
+
 Transcript:
 ${transcript}
 `;
@@ -137,7 +143,7 @@ ${transcript}
         },
       ],
       response_format: { type: "json_object" },
-      temperature: 0.3,
+      temperature: 0.3, // handles randomness
       max_tokens: 2000,
     });
 
