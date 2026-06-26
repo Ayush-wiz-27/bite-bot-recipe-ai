@@ -523,7 +523,12 @@ export default function Dashboard({ setIsLoggedIn }) {
                 initial={{ opacity: 0, y: -15 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -15 }}
-                className="absolute top-20 right-0 w-60 glass-island rounded-2xl p-5 flex flex-col gap-4 z-50 lg:hidden"
+                className={cn(
+                  "absolute top-20 right-0 w-60 rounded-2xl p-5 flex flex-col gap-4 z-50 lg:hidden shadow-2xl border",
+                  theme === "dark"
+                    ? "bg-zinc-900 border-zinc-700"
+                    : "bg-white border-zinc-200"
+                )}
               >
                 {/* <button
                   onClick={() => setMobileMenuOpen(false)}
