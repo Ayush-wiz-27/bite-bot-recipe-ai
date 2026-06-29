@@ -25,7 +25,8 @@ const generateRecipe = async (req, res) => {
   try {
     const { url } = req.body;
 
-    const transcript = await getTranscriptFromVideo(url);
+    // Use the smart transcript function that avoids yt-dlp if possible!
+    const transcript = await getTranscriptSmart(url);
     const recipe = await convertTranscript(transcript);
 
 

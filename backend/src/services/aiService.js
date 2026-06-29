@@ -156,4 +156,27 @@ ${transcript}
   }
 };
 
-module.exports = { getTranscriptFromVideo, convertTranscript };
+const { getTranscript } = require("./youtubeService");
+
+// SMART FALLBACK: Tries to get captions directly first (bypasses yt-dlp bot detection completely)
+const getTranscriptSmart = async (url) => {
+  try {
+    const captionText = await getTranscript(url);
+    if (captionText && captionText.length > 20) {
+      console.log("✅ Successfully extracted captions directly (bypassed yt-dlp)!");
+      return captionText;
+    }
+    throw new Error("Captions too short");
+  } catch (err) {
+    console.warn("⚠️ Captions unavailable, falling back to yt-dlp:", err.message);
+    const audioTranscript = await getTranscriptFromVideo(url);
+
+    if (audioTranscript && audioTranscript.length > 20) {
+      return audioTranscript;
+    }
+
+    throw new Error("Failed to extract transcript from video");
+  }
+};
+
+module.exports = { getTranscriptFromVideo, convertTranscript, getTranscriptSmart };
