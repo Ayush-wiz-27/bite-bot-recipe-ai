@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 
 
 
-const { getTranscriptFromVideo, convertTranscript } = require("../services/aiService");
+const { getTranscriptFromVideo, convertTranscript, getTranscriptSmart } = require("../services/aiService");
 const Recipe = require("../models/recipe");
 
 
