@@ -8,10 +8,11 @@ require("dotenv").config();
 // Decode YouTube cookies from Render environment variable
 if (process.env.YT_COOKIES_B64) {
   try {
-    fs.writeFileSync(
-      path.join(__dirname, "cookies.txt"),
-      Buffer.from(process.env.YT_COOKIES_B64, "base64").toString("utf-8")
-    );
+    let decoded = Buffer.from(process.env.YT_COOKIES_B64, "base64").toString("utf-8");
+    if (!decoded.startsWith("# Netscape HTTP Cookie File")) {
+      decoded = "# Netscape HTTP Cookie File\n" + decoded;
+    }
+    fs.writeFileSync(path.join(__dirname, "cookies.txt"), decoded);
     console.log("✅ YouTube cookies securely loaded from environment variables");
   } catch (err) {
     console.error("Failed to parse YT_COOKIES_B64", err);
