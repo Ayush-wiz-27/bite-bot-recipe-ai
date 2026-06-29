@@ -1,7 +1,22 @@
 const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/db");
+const fs = require("fs");
+const path = require("path");
 require("dotenv").config();
+
+// Decode YouTube cookies from Render environment variable
+if (process.env.YT_COOKIES_B64) {
+  try {
+    fs.writeFileSync(
+      path.join(__dirname, "cookies.txt"),
+      Buffer.from(process.env.YT_COOKIES_B64, "base64").toString("utf-8")
+    );
+    console.log("✅ YouTube cookies securely loaded from environment variables");
+  } catch (err) {
+    console.error("Failed to parse YT_COOKIES_B64", err);
+  }
+}
 
 const recipeRoutes = require("./routes/recipeRoutes");
 const authRoutes = require('./routes/authRoutes');

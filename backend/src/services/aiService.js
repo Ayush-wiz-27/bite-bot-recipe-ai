@@ -25,7 +25,8 @@ const downloadAudio = async (url, outputPath) => {
     noCheckCertificates: true,
     noWarnings: true,
     preferFreeFormats: true,
-    extractorArgs: 'youtube:player_client=android,web', // This is the magic line to bypass bot detection
+    cookies: path.join(__dirname, '../cookies.txt'),
+    extractorArgs: 'youtube:player_client=android,web',
     addHeader: [
       `referer:${isInstagram ? 'instagram.com' : 'youtube.com'}`,
       'user-agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'
