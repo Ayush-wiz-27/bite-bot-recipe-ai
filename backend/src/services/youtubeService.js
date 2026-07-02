@@ -1,13 +1,12 @@
 /**
  * YouTube Transcript Service
- *
- * Uses the 'youtube-transcript' npm package with a custom fetch function
- * that injects YouTube cookies. This makes requests look like an
- * authenticated user session, bypassing bot detection on datacenter IPs.
+ * 
+ * Uses Supadata.ai (third-party API) to extract transcripts.
+ * This completely avoids IP blocks from YouTube on Render.
+ * 
+ * Requires SUPADATA_API_KEY in .env
  */
-
-const fs = require("fs");
-const path = require("path");
+const axios = require("axios");
 
 const extractVideoId = (url) => {
   const patterns = [
@@ -22,118 +21,49 @@ const extractVideoId = (url) => {
 };
 
 /**
- * Load YouTube cookies from cookies.txt (Netscape format)
- * and return them as a Cookie header string.
- */
-const loadCookieString = () => {
-  const cookiePath = path.join(__dirname, "../cookies.txt");
-  if (!fs.existsSync(cookiePath)) return "";
-
-  const content = fs.readFileSync(cookiePath, "utf-8");
-  const cookies = content
-    .split("\n")
-    .filter((line) => line.trim() && !line.startsWith("#"))
-    .map((line) => {
-      const parts = line.split("\t");
-      if (parts.length >= 7) {
-        return `${parts[5]}=${parts[6]}`;
-      }
-      return null;
-    })
-    .filter(Boolean);
-
-  return cookies.join("; ");
-};
-
-/**
- * Create a custom fetch function that injects YouTube cookies
- * into every request. This makes datacenter requests look like
- * an authenticated browser session.
- */
-const createCookieFetch = (cookieString) => {
-  return async (url, init = {}) => {
-    const headers = {
-      ...init.headers,
-      "User-Agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
-      "Accept-Language": "en-US,en;q=0.9",
-    };
-
-    // Add cookies if available
-    if (cookieString) {
-      headers["Cookie"] = cookieString;
-    }
-
-    return fetch(url, {
-      ...init,
-      headers,
-    });
-  };
-};
-
-/**
  * Main export: get transcript from a YouTube URL.
- * Uses youtube-transcript with cookie-authenticated fetch
- * to bypass bot detection on Render/datacenter IPs.
+ * Uses Supadata API which bypasses all datacenter IP bans.
  */
 const getTranscript = async (url) => {
-  const { YoutubeTranscript } = await import("youtube-transcript");
-
   const videoId = extractVideoId(url);
   if (!videoId) throw new Error("Invalid YouTube URL");
 
-  console.log(`📝 Fetching captions for video: ${videoId}`);
-
-  const cookieString = loadCookieString();
-  if (cookieString) {
-    console.log("🍪 YouTube cookies loaded — using authenticated session");
-  } else {
-    console.log("⚠️ No YouTube cookies found — requests may be blocked on datacenter IPs");
+  const apiKey = process.env.SUPADATA_API_KEY;
+  if (!apiKey) {
+    throw new Error("SUPADATA_API_KEY is missing. Please get a free API key from supadata.ai and add it to your environment variables.");
   }
 
-  const customFetch = createCookieFetch(cookieString);
+  console.log(`📝 Fetching captions for video: ${videoId} via Supadata API`);
 
   try {
-    // Try English captions first
-    const transcript = await YoutubeTranscript.fetchTranscript(videoId, {
-      lang: "en",
-      fetch: customFetch,
+    const response = await axios.get(`https://api.supadata.ai/v1/youtube/transcript?videoId=${videoId}`, {
+      headers: {
+        "x-api-key": apiKey
+      }
     });
 
-    const text = transcript
-      .map((segment) => segment.text)
-      .join(" ")
-      .replace(/\s+/g, " ")
-      .trim();
+    const data = response.data;
+    let text = "";
 
-    if (text && text.length >= 20) {
-      console.log(`✅ Got ${text.length} chars of English transcript`);
-      return text;
+    // Supadata typically returns an array of segments in 'content'
+    const segments = data.content || data.data || data;
+    
+    if (Array.isArray(segments)) {
+       text = segments.map(s => s.text).join(" ").replace(/\s+/g, " ").trim();
+    } else if (typeof data.text === "string") {
+       text = data.text;
     }
-    throw new Error("Transcript too short");
-  } catch (firstError) {
-    // If English fails, try without specifying language
-    try {
-      console.log("⚠️ English captions failed, trying default language...");
-      const transcript = await YoutubeTranscript.fetchTranscript(videoId, {
-        fetch: customFetch,
-      });
 
-      const text = transcript
-        .map((segment) => segment.text)
-        .join(" ")
-        .replace(/\s+/g, " ")
-        .trim();
-
-      if (text && text.length >= 20) {
-        console.log(`✅ Got ${text.length} chars of transcript (default language)`);
-        return text;
-      }
-      throw new Error("Transcript too short");
-    } catch (secondError) {
-      console.error("YouTube transcript error:", firstError.message);
-      throw new Error(firstError.message);
+    if (!text || text.length < 20) {
+      throw new Error("Caption transcript too short or empty");
     }
+
+    console.log(`✅ Got ${text.length} chars of transcript from Supadata`);
+    return text;
+  } catch (error) {
+    const errorMsg = error.response?.data?.message || error.message;
+    console.error("Supadata API error:", error.response?.data || error.message);
+    throw new Error(`Failed to fetch transcript from Supadata: ${errorMsg}`);
   }
 };
 
