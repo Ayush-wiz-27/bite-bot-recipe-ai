@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const rateLimit = require("express-rate-limit");
 const connectDB = require("./config/db");
 const fs = require("fs");
 const path = require("path");
@@ -37,8 +38,34 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// Trust proxy is required if you are behind a reverse proxy (like Render/Vercel)
+// so that the IP address is read correctly for rate limiting.
+app.set("trust proxy", 1);
+
+// Global Rate Limiter: Max 100 requests per 15 minutes for general endpoints
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, 
+  max: 100, 
+  message: "Too many requests from this IP, please try again after 15 minutes",
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Strict Rate Limiter: Max 10 requests per hour for Recipe Generation
+// (To protect your free Supadata & Groq API quotas from abuse)
+const recipeLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 10,
+  message: "Daily recipe limit reached for this IP. Please try again later.",
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+app.use(globalLimiter);
+
 // Routes
-app.use("/api/recipe", recipeRoutes);
+// Apply the strict recipe limiter specifically to the recipe generation endpoints
+app.use("/api/recipe", recipeLimiter, recipeRoutes);
 
 // Test route
 app.get("/", (req, res) => {
