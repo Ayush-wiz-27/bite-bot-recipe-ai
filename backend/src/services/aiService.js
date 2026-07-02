@@ -16,6 +16,10 @@ const youtubedl = require('youtube-dl-exec');
 
 const downloadAudio = async (url, outputPath) => {
   const isInstagram = url.includes("instagram.com") || url.includes("instagr.am");
+  const isYouTube = url.includes("youtube.com") || url.includes("youtu.be");
+
+  const cookiesPath = path.join(__dirname, '../cookies.txt');
+  const hasCookies = fs.existsSync(cookiesPath);
 
   const options = {
     extractAudio: true,
@@ -25,15 +29,40 @@ const downloadAudio = async (url, outputPath) => {
     noCheckCertificates: true,
     noWarnings: true,
     preferFreeFormats: true,
-    cookies: path.join(__dirname, '../cookies.txt'),
-    extractorArgs: 'youtube:player_client=android,web',
     addHeader: [
-      `referer:${isInstagram ? 'instagram.com' : 'youtube.com'}`,
-      'user-agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'
-    ]
+      `referer:${isInstagram ? 'https://www.instagram.com/' : 'https://www.youtube.com/'}`,
+      'user-agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+      'accept-language:en-US,en;q=0.9',
+    ],
   };
 
-  return youtubedl(url, options);
+  // Use cookies if available (helps with YouTube authentication)
+  if (hasCookies) {
+    options.cookies = cookiesPath;
+  }
+
+  // YouTube-specific: use multiple player client fallbacks to avoid bot detection
+  if (isYouTube) {
+    options.extractorArgs = 'youtube:player_client=mediaconnect,web';
+    // Add sleep between requests to look less bot-like
+    options.sleepInterval = 1;
+    options.maxSleepInterval = 3;
+  }
+
+  // Instagram-specific: add session headers
+  if (isInstagram) {
+    options.addHeader.push('x-ig-app-id:936619743392459');
+  }
+
+  try {
+    return await youtubedl(url, options);
+  } catch (error) {
+    // If YouTube fails with bot detection, throw a clear error
+    if (error.message && (error.message.includes('Sign in to confirm') || error.message.includes('bot'))) {
+      throw new Error('YouTube bot detection triggered. Captions were not available for this video and audio download was blocked. Try a different video that has captions/subtitles enabled.');
+    }
+    throw error;
+  }
 };
 
 const transcribeAudio = async (filePath) => {
@@ -159,25 +188,51 @@ ${transcript}
 
 const { getTranscript } = require("./youtubeService");
 
-// SMART FALLBACK: Tries to get captions directly first (bypasses yt-dlp bot detection completely)
+// SMART FALLBACK: For YouTube, tries InnerTube captions first (bypasses yt-dlp bot detection completely)
+// For Instagram/other URLs, goes straight to yt-dlp audio download
 const getTranscriptSmart = async (url) => {
-  try {
-    const captionText = await getTranscript(url);
-    if (captionText && captionText.length > 20) {
-      console.log("✅ Successfully extracted captions directly (bypassed yt-dlp)!");
-      return captionText;
+  const isYouTube = url.includes("youtube.com") || url.includes("youtu.be");
+  const isInstagram = url.includes("instagram.com") || url.includes("instagr.am");
+
+  // STRATEGY 1: YouTube → Try InnerTube captions first (NO bot detection)
+  if (isYouTube) {
+    try {
+      console.log("🔍 YouTube URL detected — trying InnerTube caption extraction...");
+      const captionText = await getTranscript(url);
+      if (captionText && captionText.length > 20) {
+        console.log("✅ Successfully extracted captions via InnerTube (bypassed yt-dlp completely)!");
+        return captionText;
+      }
+      console.warn("⚠️ Caption text too short, falling back to yt-dlp...");
+    } catch (err) {
+      console.warn("⚠️ InnerTube captions unavailable:", err.message);
+      console.log("🔄 Falling back to yt-dlp audio download...");
     }
-    throw new Error("Captions too short");
-  } catch (err) {
-    console.warn("⚠️ Captions unavailable, falling back to yt-dlp:", err.message);
+  }
+
+  // STRATEGY 2: yt-dlp audio download → Whisper transcription
+  // (Used for Instagram, or YouTube when captions aren't available)
+  try {
+    console.log(`🎵 Downloading audio via yt-dlp for ${isInstagram ? 'Instagram' : 'YouTube'} URL...`);
     const audioTranscript = await getTranscriptFromVideo(url);
 
     if (audioTranscript && audioTranscript.length > 20) {
+      console.log("✅ Got transcript via yt-dlp + Whisper");
       return audioTranscript;
     }
 
-    throw new Error("Failed to extract transcript from video");
+    throw new Error("Transcript too short from audio extraction");
+  } catch (err) {
+    // Provide helpful error messages
+    if (isYouTube) {
+      throw new Error(
+        "Could not get transcript: This YouTube video has no captions, and audio download was blocked by YouTube's bot detection on this server. " +
+        "Try a video that has subtitles/CC enabled."
+      );
+    }
+    throw new Error(`Failed to extract transcript: ${err.message}`);
   }
 };
 
 module.exports = { getTranscriptFromVideo, convertTranscript, getTranscriptSmart };
+
