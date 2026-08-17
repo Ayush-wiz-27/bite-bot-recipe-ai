@@ -241,12 +241,18 @@ This is the **heart of the application**. It has 4 key functions:
 - If rate-limited (HTTP 429), falls back to `whisper-large-v3`
 - Returns plain text transcript
 
-#### `getTranscriptFromVideo(url)` — Orchestrator
-1. Creates a `temp/` directory if it doesn't exist
-2. Downloads audio to `temp/audio_<timestamp>.mp3`
-3. Transcribes the audio file
-4. **Deletes the temp file** (cleanup)
-5. Returns the transcript text
+#### `getTranscriptSmart(url)` — The Orchestrator
+This function decides the best way to extract text from a video:
+1. **Strategy 1: Text API (YouTube Only)**
+   - It checks if the URL is from YouTube.
+   - If so, it calls `youtubeService.js` (which hits the Supadata API) to directly fetch the text captions.
+   - *Why?* Because downloading audio from YouTube on cloud servers usually triggers bot protection. Reading text through an API avoids this completely.
+2. **Strategy 2: Audio Extraction (Fallback & Instagram)**
+   - If Strategy 1 fails (e.g., the video has no captions) OR if the URL is an Instagram Reel.
+   - It creates a `temp/` directory.
+   - Calls `downloadAudio()` to grab the MP3 via `yt-dlp`.
+   - Calls `transcribeAudio()` to convert that MP3 to text via Whisper AI.
+   - Deletes the temporary MP3 file to save space.
 
 #### `convertTranscript(transcript)`
 - Takes the raw transcript text
@@ -257,9 +263,13 @@ This is the **heart of the application**. It has 4 key functions:
 - Uses `response_format: { type: "json_object" }` to force valid JSON output
 - Returns the parsed JSON object
 
-### 5.5 `youtubeService.js` — Caption Extraction (Alternative)
+### 5.5 `youtubeService.js` — Caption Extraction API
 
-An alternative approach that extracts captions directly from YouTube's timed-text API (no audio download needed). Currently **not used** in the main flow — `aiService.js` handles everything via audio transcription instead, which works for YouTube AND Instagram.
+This service is dedicated purely to bypassing YouTube's anti-bot protections. Cloud providers (like Render or AWS) are often blocked from downloading YouTube videos.
+
+To solve this, we use **Supadata.ai**, a third-party API that acts as a proxy to extract the official YouTube subtitles/captions (if they exist). 
+- It requires a `SUPADATA_API_KEY`.
+- If successful, it returns the plain text of the video instantly (which is also much faster than downloading and transcribing audio).
 
 ---
 
@@ -502,26 +512,29 @@ Here's exactly what happens when you paste a URL and click **ENGAGE**:
 │                                                                 │
 │  5. Express receives POST at /api/recipe/generate               │
 │  6. recipeRoutes.js → routes to generateRecipe()                │
-│  7. recipeController.js → calls getTranscriptFromVideo(url)     │
+│  7. recipeController.js → calls getTranscriptSmart(url)         │
 │                                                                 │
 │  ┌─── aiService.js ──────────────────────────────────────────┐  │
 │  │                                                           │  │
-│  │  8. downloadAudio(url) → yt-dlp downloads MP3             │  │
-│  │     (saved to backend/temp/audio_1234567890.mp3)          │  │
+│  │  8. getTranscriptSmart makes a decision:                  │  │
 │  │                                                           │  │
-│  │  9. transcribeAudio(filePath)                             │  │
-│  │     → Sends MP3 to Groq Whisper API                       │  │
-│  │     → Returns text: "today we're making butter chicken.." │  │
+│  │     ▶ STRATEGY 1 (YouTube only)                           │  │
+│  │        Calls youtubeService.js (Supadata API)             │  │
+│  │        ↳ Returns text instantly!                          │  │
 │  │                                                           │  │
-│  │  10. Deletes temp MP3 file                                │  │
+│  │     ▶ STRATEGY 2 (Fallback / Instagram)                   │  │
+│  │        a. yt-dlp downloads MP3 to backend/temp/           │  │
+│  │        b. transcribes MP3 via Groq Whisper API            │  │
+│  │        c. Deletes temp MP3 file                           │  │
+│  │        ↳ Returns text!                                    │  │
 │  │                                                           │  │
-│  │  11. convertTranscript(transcript)                        │  │
-│  │      → Sends text to Groq LLaMA 3.3                      │  │
-│  │      → Returns JSON: { ingredients: [...], steps: [...] } │  │
+│  │  9. convertTranscript(transcriptText)                     │  │
+│  │     → Sends text to Groq LLaMA 3.3                        │  │
+│  │     → Returns JSON: { ingredients: [...], steps: [...] }  │  │
 │  │                                                           │  │
 │  └───────────────────────────────────────────────────────────┘  │
 │                                                                 │
-│  12. Controller sends JSON response back to frontend            │
+│  10. Controller sends JSON response back to frontend            │
 │                                                                 │
 │         ◄──── HTTP Response ────                                │
 │                                                                 │

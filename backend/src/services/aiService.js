@@ -165,20 +165,44 @@ Transcript:
 ${transcript}
 `;
 
-    const completion = await openai.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
-      messages: [
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
-      response_format: { type: "json_object" },
-      temperature: 0.3, // handles randomness
-      max_tokens: 2000,
-    });
-
-    const response = completion.choices[0].message.content;
+    let response;
+    try {
+      const completion = await openai.chat.completions.create({
+        model: "llama-3.3-70b-versatile",
+        messages: [
+          {
+            role: "user",
+            content: prompt,
+          },
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.3, // handles randomness
+        max_tokens: 2000,
+      });
+      response = completion.choices[0].message.content;
+    } catch (groqErr) {
+      console.warn("⚠️ Groq chat completion failed, trying OpenRouter fallback...", groqErr.message);
+      if (!process.env.OPENROUTER_API_KEY) {
+        throw new Error(`Groq failed (${groqErr.message}) and OPENROUTER_API_KEY is not set.`);
+      }
+      const openrouter = new OpenAI({
+        apiKey: process.env.OPENROUTER_API_KEY,
+        baseURL: "https://openrouter.ai/api/v1"
+      });
+      const completion = await openrouter.chat.completions.create({
+        model: "meta-llama/llama-3.3-70b-instruct",
+        messages: [
+          {
+            role: "user",
+            content: prompt,
+          },
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.3,
+        max_tokens: 2000,
+      });
+      response = completion.choices[0].message.content;
+    }
     return JSON.parse(response);
   } catch (err) {
     console.error("AI ERROR:", err);

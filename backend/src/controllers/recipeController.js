@@ -112,19 +112,38 @@ Instructions:
 - Keep answer short, clear, and practical
 `;
 
-    const completion = await openai.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
-      messages: [
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
-      temperature: 0.5,
-      max_tokens: 200,
-    });
-
-    const answer = completion.choices[0].message.content;
+    let answer;
+    try {
+      const completion = await openai.chat.completions.create({
+        model: "llama-3.3-70b-versatile",
+        messages: [
+          {
+            role: "user",
+            content: prompt,
+          },
+        ],
+        temperature: 0.5,
+        max_tokens: 200,
+      });
+      answer = completion.choices[0].message.content;
+    } catch (groqErr) {
+      console.warn("⚠️ Groq ingredientQuery failed, trying OpenRouter fallback...", groqErr.message);
+      if (!process.env.OPENROUTER_API_KEY) {
+        throw groqErr;
+      }
+      const completion = await openrouter.chat.completions.create({
+        model: "meta-llama/llama-3.3-70b-instruct",
+        messages: [
+          {
+            role: "user",
+            content: prompt,
+          },
+        ],
+        temperature: 0.5,
+        max_tokens: 200,
+      });
+      answer = completion.choices[0].message.content;
+    }
 
     res.json({ answer });
 
@@ -255,18 +274,20 @@ Style: ${style}
     }).join("\n");
 
     const prompt = `
-You are a cooking assistant. The user wants: "${query}"
+You are an expert AI chef. 
+The user is specifically asking for: "${query}"
 
-Here are some of their past recipes for reference (use these for personalization):
+Here are some of their past recipes for reference to understand their flavor profile and preferred ingredients:
 ${context}
 
-Generate a COMPLETE NEW recipe based on what the user wants.
-Use the past recipes only as inspiration for their taste preferences.
-
-Return a structured recipe with:
-1. Ingredients (with: name, quantity, emoji, fat, protein, carbs, vitamins, purpose, alternatives, skippable, impact)
-2. Title: A short, clean recipe name (2–5 words). No emojis, no hype words.
-3. Steps (clear, short, ordered)
+YOUR INSTRUCTIONS:
+1. Generate a COMPLETE NEW recipe that STRICTLY fulfills the user's request ("${query}"). 
+2. If the user asked for something specific (like "high protein", "keto", or "chicken"), you MUST ensure the recipe heavily features those elements. Do not ignore their request.
+3. Use their past recipes ONLY as inspiration for spices, cooking styles, or flavor combinations they might enjoy.
+4. Return a structured recipe with:
+   - Ingredients (with: name, quantity, emoji, fat, protein, carbs, vitamins, purpose, alternatives, skippable, impact)
+   - Title: A short, clean recipe name (2–5 words). No emojis, no hype words.
+   - Steps (clear, short, ordered)
 
 Return ONLY valid JSON in this format:
 {
@@ -290,15 +311,30 @@ Return ONLY valid JSON in this format:
 }
 `;
 
-    const completion = await openai.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
-      messages: [{ role: "user", content: prompt }],
-      response_format: { type: "json_object" },
-      temperature: 0.3,
-      max_tokens: 2000,
-    });
-
-    const generatedRecipe = JSON.parse(completion.choices[0].message.content);
+    let generatedRecipe;
+    try {
+      const completion = await openai.chat.completions.create({
+        model: "llama-3.3-70b-versatile",
+        messages: [{ role: "user", content: prompt }],
+        response_format: { type: "json_object" },
+        temperature: 0.3,
+        max_tokens: 2000,
+      });
+      generatedRecipe = JSON.parse(completion.choices[0].message.content);
+    } catch (groqErr) {
+      console.warn("⚠️ Groq ragQuery failed, trying OpenRouter fallback...", groqErr.message);
+      if (!process.env.OPENROUTER_API_KEY) {
+        throw groqErr;
+      }
+      const completion = await openrouter.chat.completions.create({
+        model: "meta-llama/llama-3.3-70b-instruct",
+        messages: [{ role: "user", content: prompt }],
+        response_format: { type: "json_object" },
+        temperature: 0.3,
+        max_tokens: 2000,
+      });
+      generatedRecipe = JSON.parse(completion.choices[0].message.content);
+    }
 
     res.json({
       recipe: generatedRecipe,
