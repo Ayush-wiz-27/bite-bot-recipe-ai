@@ -1,0 +1,1959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bite Bot — Complete Project Documentation</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+    :root {
+      --bg: #0a0a0f;
+      --surface: #12121a;
+      --surface-2: #1a1a28;
+      --border: #2a2a3d;
+      --text: #e4e4ed;
+      --text-muted: #8888a0;
+      --accent: #f59e0b;
+      --accent-dim: #f59e0b33;
+      --blue: #3b82f6;
+      --green: #22c55e;
+      --red: #ef4444;
+      --purple: #a855f7;
+      --cyan: #06b6d4;
+      --orange: #f97316;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    /* ─── PRINT / PDF STYLES ─── */
+    @media print {
+      body { background: #fff; color: #111; font-size: 11pt; }
+      .page-break { page-break-before: always; }
+      .no-print { display: none !important; }
+      :root { --bg:#fff; --surface:#f8f8f8; --surface-2:#f0f0f0; --border:#ddd; --text:#111; --text-muted:#555; --accent:#d97706; }
+      .cover { background: linear-gradient(135deg, #fef3c7, #fde68a) !important; }
+      section { break-inside: avoid; }
+      .diagram-box { border: 2px solid #333 !important; background: #fafafa !important; }
+    }
+
+    /* ─── COVER PAGE ─── */
+    .cover {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background: radial-gradient(circle at 30% 20%, #1a1a2e 0%, var(--bg) 50%),
+                  radial-gradient(circle at 80% 80%, #0f172a 0%, transparent 50%);
+      padding: 4rem 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .cover::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -20%;
+      width: 140%;
+      height: 140%;
+      background: radial-gradient(circle, var(--accent-dim) 0%, transparent 60%);
+      opacity: 0.3;
+    }
+    .cover .logo {
+      font-size: 7rem;
+      margin-bottom: 1rem;
+      position: relative;
+    }
+    .cover h1 {
+      font-size: 4.5rem;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      position: relative;
+    }
+    .cover h1 span { color: var(--accent); font-style: italic; }
+    .cover .subtitle {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      max-width: 600px;
+      margin-top: 1.5rem;
+      position: relative;
+    }
+    .cover .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 3rem;
+      padding: 0.7rem 2rem;
+      border: 1px solid var(--accent);
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--accent);
+      position: relative;
+    }
+
+    /* ─── TABLE OF CONTENTS ─── */
+    .toc {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 5rem 2rem;
+    }
+    .toc h2 {
+      font-size: 2rem;
+      font-weight: 900;
+      margin-bottom: 2rem;
+      letter-spacing: -0.03em;
+    }
+    .toc-list {
+      list-style: none;
+      counter-reset: toc-counter;
+    }
+    .toc-list li {
+      counter-increment: toc-counter;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: background 0.2s;
+    }
+    .toc-list li:hover { background: var(--surface); }
+    .toc-list li::before {
+      content: counter(toc-counter, decimal-leading-zero);
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--accent);
+      min-width: 2rem;
+    }
+    .toc-list a { color: inherit; text-decoration: none; font-weight: 600; }
+
+    /* ─── MAIN CONTAINER ─── */
+    .content {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* ─── SECTION HEADERS ─── */
+    .section-header {
+      padding: 3rem 0 1.5rem;
+      border-bottom: 3px solid var(--accent);
+      margin-bottom: 2.5rem;
+    }
+    .section-header .section-number {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+    .section-header h2 {
+      font-size: 2.5rem;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+    }
+
+    h3 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      margin: 2.5rem 0 1rem;
+      letter-spacing: -0.02em;
+      color: var(--accent);
+    }
+
+    h4 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin: 1.5rem 0 0.8rem;
+    }
+
+    p { margin-bottom: 1rem; }
+
+    /* ─── CODE BLOCKS ─── */
+    pre {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      line-height: 1.8;
+    }
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--surface);
+      padding: 0.15rem 0.5rem;
+      border-radius: 5px;
+      font-size: 0.85em;
+      color: var(--accent);
+    }
+    pre code { background: none; padding: 0; color: inherit; }
+
+    /* ─── TABLES ─── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.9rem;
+    }
+    th, td {
+      padding: 0.9rem 1.2rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      background: var(--surface);
+      font-weight: 700;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+    }
+    td { vertical-align: top; }
+    tr:hover td { background: var(--surface); }
+
+    /* ─── DIAGRAMS ─── */
+    .diagram-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.5rem;
+      margin: 2rem 0;
+      overflow-x: auto;
+    }
+    .diagram-box .diagram-title {
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: var(--accent);
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+    .diagram-box pre {
+      background: none;
+      border: none;
+      padding: 0;
+      margin: 0;
+      text-align: center;
+    }
+
+    /* ─── INFO BOXES ─── */
+    .info-box {
+      border-left: 4px solid var(--accent);
+      background: var(--accent-dim);
+      padding: 1.2rem 1.5rem;
+      border-radius: 0 12px 12px 0;
+      margin: 1.5rem 0;
+    }
+    .info-box.blue { border-left-color: var(--blue); background: #3b82f620; }
+    .info-box.green { border-left-color: var(--green); background: #22c55e20; }
+    .info-box.red { border-left-color: var(--red); background: #ef444420; }
+    .info-box.purple { border-left-color: var(--purple); background: #a855f720; }
+    .info-box strong { display: block; margin-bottom: 0.3rem; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; }
+
+    /* ─── WIREFRAME BOXES ─── */
+    .wireframe {
+      display: grid;
+      gap: 1rem;
+      margin: 2rem 0;
+    }
+    .wire-box {
+      border: 2px dashed var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      text-align: center;
+      position: relative;
+    }
+    .wire-box .wire-label {
+      font-size: 0.65rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--accent);
+      position: absolute;
+      top: -0.6rem;
+      left: 1rem;
+      background: var(--bg);
+      padding: 0 0.5rem;
+    }
+    .wire-box .wire-content {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    /* ─── FLOW ARROWS ─── */
+    .flow-step {
+      display: flex;
+      align-items: stretch;
+      gap: 1.2rem;
+      margin: 1rem 0;
+    }
+    .flow-number {
+      min-width: 3rem;
+      height: 3rem;
+      background: var(--accent);
+      color: #000;
+      font-weight: 900;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .flow-content {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.5rem;
+    }
+    .flow-content strong { color: var(--accent); }
+
+    /* ─── CHIP TAGS ─── */
+    .chip {
+      display: inline-block;
+      padding: 0.25rem 0.8rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      margin: 0.2rem;
+      border: 1px solid;
+    }
+    .chip.acc { background: var(--accent-dim); color: var(--accent); border-color: var(--accent); }
+    .chip.blue { background: #3b82f620; color: var(--blue); border-color: var(--blue); }
+    .chip.green { background: #22c55e20; color: var(--green); border-color: var(--green); }
+    .chip.purple { background: #a855f720; color: var(--purple); border-color: var(--purple); }
+    .chip.red { background: #ef444420; color: var(--red); border-color: var(--red); }
+    .chip.cyan { background: #06b6d420; color: var(--cyan); border-color: var(--cyan); }
+
+    /* ─── SPLIT COLUMNS ─── */
+    .columns { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 1.5rem 0; }
+    @media (max-width: 700px) { .columns { grid-template-columns: 1fr; } }
+
+    /* ─── INTERVIEW Q&A ─── */
+    .qa { margin: 1.5rem 0; }
+    .qa .q {
+      font-weight: 800;
+      font-size: 1rem;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+    .qa .q::before { content: 'Q: '; }
+    .qa .a { padding-left: 1.5rem; border-left: 2px solid var(--border); margin-left: 0.5rem; }
+    .qa .a::before { content: 'A: '; font-weight: 700; color: var(--green); }
+
+    ul { margin: 0.5rem 0 1rem 1.5rem; }
+    li { margin: 0.3rem 0; }
+
+    .separator {
+      width: 60px;
+      height: 4px;
+      background: var(--accent);
+      border-radius: 2px;
+      margin: 4rem auto;
+    }
+
+    /* SVG Diagram styles */
+    .svg-diagram {
+      width: 100%;
+      max-width: 900px;
+      margin: 2rem auto;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- ░░░ COVER PAGE ░░░                         -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="cover">
+  <div class="logo">🍳</div>
+  <h1><span>Bite</span> Bot</h1>
+  <p class="subtitle">
+    Complete Project Documentation & Interview Notes<br/>
+    <em>AI-Powered Cooking Assistant — From YouTube/Instagram to Structured Recipes</em>
+  </p>
+  <div class="badge">📖 Comprehensive Technical Reference</div>
+  <p style="position:relative; margin-top: 3rem; color: var(--text-muted); font-size: 0.85rem;">
+    <strong style="color: var(--accent);">To save as PDF:</strong> Press <code>Cmd + P</code> (Mac) or <code>Ctrl + P</code> (Windows) → Destination → "Save as PDF"
+  </p>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- ░░░ TABLE OF CONTENTS ░░░                  -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="toc page-break">
+  <h2>📑 Table of Contents</h2>
+  <ol class="toc-list">
+    <li><a href="#s1">Project Overview & One-Liner</a></li>
+    <li><a href="#s2">High-Level Architecture Diagram</a></li>
+    <li><a href="#s3">Complete Tech Stack (with "Why")</a></li>
+    <li><a href="#s4">Folder Structure — Annotated</a></li>
+    <li><a href="#s5">Backend Deep Dive — Every File Explained</a></li>
+    <li><a href="#s6">Frontend Deep Dive — Every File Explained</a></li>
+    <li><a href="#s7">Database Design (MongoDB + Vector Search)</a></li>
+    <li><a href="#s8">Authentication System (JWT)</a></li>
+    <li><a href="#s9">RAG (Retrieval-Augmented Generation) Pipeline</a></li>
+    <li><a href="#s10">End-to-End Data Flow (with Diagram)</a></li>
+    <li><a href="#s11">API Reference — All Endpoints</a></li>
+    <li><a href="#s12">UI Wireframes & Screen Flow</a></li>
+    <li><a href="#s13">Security & Rate Limiting</a></li>
+    <li><a href="#s14">Deployment Architecture</a></li>
+    <li><a href="#s15">Key Concepts Glossary</a></li>
+    <li><a href="#s16">Interview Questions & Answers</a></li>
+    <li><a href="#s17">Troubleshooting Quick Reference</a></li>
+  </ol>
+</div>
+
+<div class="content">
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- SECTION 1: PROJECT OVERVIEW                                    -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section id="s1" class="page-break">
+  <div class="section-header">
+    <div class="section-number">Section 01</div>
+    <h2>Project Overview & One-Liner</h2>
+  </div>
+
+  <div class="info-box">
+    <strong>⚡ Elevator Pitch</strong>
+    Bite Bot is an AI-powered cooking assistant that takes a YouTube or Instagram Reel URL, extracts the audio/captions, transcribes it using Whisper AI, and uses LLaMA 3.3 to generate a structured recipe with detailed nutritional data — all presented in a premium, voice-controlled, cinematic UI with RAG-based recipe suggestions and JWT authentication.
+  </div>
+
+  <h3>What Makes This Project Stand Out</h3>
+  <div class="columns">
+    <div>
+      <h4>🧠 AI/ML Features</h4>
+      <ul>
+        <li><strong>Speech-to-Text</strong> — Whisper AI (with fallback model)</li>
+        <li><strong>LLM Structured Output</strong> — JSON mode with LLaMA 3.3</li>
+        <li><strong>RAG Pipeline</strong> — Vector search + embeddings for personalized suggestions</li>
+        <li><strong>Text Embeddings</strong> — OpenAI text-embedding-3-small via OpenRouter</li>
+        <li><strong>MongoDB Atlas Vector Search</strong> — For semantic similarity</li>
+      </ul>
+    </div>
+    <div>
+      <h4>🎨 Engineering Features</h4>
+      <ul>
+        <li><strong>JWT Auth</strong> — Signup/Login with bcrypt password hashing</li>
+        <li><strong>Rate Limiting</strong> — 3-tier (global, recipe, auth)</li>
+        <li><strong>Multi-Strategy Extraction</strong> — Supadata API → yt-dlp fallback</li>
+        <li><strong>Voice Control</strong> — Web Speech API (recognition + synthesis)</li>
+        <li><strong>Cinematic UI</strong> — Glassmorphism + Framer Motion animations</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Core User Flow</h3>
+  <div class="flow-step"><div class="flow-number">1</div><div class="flow-content"><strong>User signs up / logs in</strong> → JWT token stored in localStorage</div></div>
+  <div class="flow-step"><div class="flow-number">2</div><div class="flow-content"><strong>Pastes a YouTube/Instagram URL</strong> → clicks "ENGAGE"</div></div>
+  <div class="flow-step"><div class="flow-number">3</div><div class="flow-content"><strong>Backend extracts transcript</strong> → via Supadata API (YouTube captions) or yt-dlp + Whisper (audio)</div></div>
+  <div class="flow-step"><div class="flow-number">4</div><div class="flow-content"><strong>LLaMA 3.3 generates structured recipe</strong> → JSON with ingredients (nutrition) + steps</div></div>
+  <div class="flow-step"><div class="flow-number">5</div><div class="flow-content"><strong>Cinematic "Supernova" transition</strong> → Dashboard revealed with 3-column layout</div></div>
+  <div class="flow-step"><div class="flow-number">6</div><div class="flow-content"><strong>User navigates steps via buttons or voice</strong> → Can ask AI questions, save recipes</div></div>
+  <div class="flow-step"><div class="flow-number">7</div><div class="flow-content"><strong>RAG-powered suggestions</strong> → "What are you craving?" uses saved recipe embeddings</div></div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- SECTION 2: HIGH-LEVEL ARCHITECTURE                             -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section id="s2" class="page-break">
+  <div class="section-header">
+    <div class="section-number">Section 02</div>
+    <h2>High-Level Architecture Diagram</h2>
+  </div>
+
+  <svg class="svg-diagram" viewBox="0 0 900 520" xmlns="http://www.w3.org/2000/svg">
+    <!-- Background -->
+    <rect width="900" height="520" fill="#12121a" rx="16"/>
+
+    <!-- Title -->
+    <text x="450" y="35" text-anchor="middle" fill="#f59e0b" font-family="Inter" font-size="14" font-weight="800" letter-spacing="3">BITE BOT — SYSTEM ARCHITECTURE</text>
+
+    <!-- User -->
+    <rect x="30" y="65" width="140" height="80" rx="12" fill="#1a1a28" stroke="#f59e0b" stroke-width="2"/>
+    <text x="100" y="95" text-anchor="middle" fill="#f59e0b" font-family="Inter" font-size="11" font-weight="700">👤 USER</text>
+    <text x="100" y="115" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="9">Browser (Chrome)</text>
+    <text x="100" y="130" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="9">Voice + Click</text>
+
+    <!-- Frontend -->
+    <rect x="220" y="55" width="210" height="100" rx="12" fill="#1a1a28" stroke="#3b82f6" stroke-width="2"/>
+    <text x="325" y="80" text-anchor="middle" fill="#3b82f6" font-family="Inter" font-size="11" font-weight="700">⚛️ FRONTEND</text>
+    <text x="325" y="98" text-anchor="middle" fill="#e4e4ed" font-family="Inter" font-size="9">React 19 + Vite</text>
+    <text x="325" y="112" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="8">Tailwind CSS v4</text>
+    <text x="325" y="126" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="8">Framer Motion + Lucide</text>
+    <text x="325" y="140" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="8">Web Speech API</text>
+
+    <!-- Backend -->
+    <rect x="490" y="55" width="210" height="100" rx="12" fill="#1a1a28" stroke="#22c55e" stroke-width="2"/>
+    <text x="595" y="80" text-anchor="middle" fill="#22c55e" font-family="Inter" font-size="11" font-weight="700">🖥️ BACKEND</text>
+    <text x="595" y="98" text-anchor="middle" fill="#e4e4ed" font-family="Inter" font-size="9">Node.js + Express.js</text>
+    <text x="595" y="112" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="8">JWT Auth + Rate Limiting</text>
+    <text x="595" y="126" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="8">yt-dlp + FFmpeg</text>
+    <text x="595" y="140" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="8">MVC Architecture</text>
+
+    <!-- Arrows: User → Frontend → Backend -->
+    <line x1="170" y1="105" x2="218" y2="105" stroke="#f59e0b" stroke-width="2" marker-end="url(#arrow-amber)"/>
+    <line x1="432" y1="105" x2="488" y2="105" stroke="#3b82f6" stroke-width="2" marker-end="url(#arrow-blue)"/>
+    <text x="455" y="97" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="7">HTTP</text>
+
+    <!-- External APIs Row -->
+    <rect x="50" y="210" width="170" height="80" rx="12" fill="#1a1a28" stroke="#a855f7" stroke-width="2"/>
+    <text x="135" y="238" text-anchor="middle" fill="#a855f7" font-family="Inter" font-size="10" font-weight="700">🤖 GROQ API</text>
+    <text x="135" y="255" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="8">Whisper (STT)</text>
+    <text x="135" y="268" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="8">LLaMA 3.3 (LLM)</text>
+
+    <rect x="270" y="210" width="170" height="80" rx="12" fill="#1a1a28" stroke="#06b6d4" stroke-width="2"/>
+    <text x="355" y="238" text-anchor="middle" fill="#06b6d4" font-family="Inter" font-size="10" font-weight="700">📝 SUPADATA API</text>
+    <text x="355" y="255" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="8">YouTube Caption</text>
+    <text x="355" y="268" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="8">Extraction (Proxy)</text>
+
+    <rect x="490" y="210" width="170" height="80" rx="12" fill="#1a1a28" stroke="#f97316" stroke-width="2"/>
+    <text x="575" y="238" text-anchor="middle" fill="#f97316" font-family="Inter" font-size="10" font-weight="700">🔗 OPENROUTER</text>
+    <text x="575" y="255" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="8">text-embedding-3-small</text>
+    <text x="575" y="268" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="8">Vector Embeddings</text>
+
+    <rect x="710" y="210" width="170" height="80" rx="12" fill="#1a1a28" stroke="#22c55e" stroke-width="2"/>
+    <text x="795" y="238" text-anchor="middle" fill="#22c55e" font-family="Inter" font-size="10" font-weight="700">🍃 MONGODB ATLAS</text>
+    <text x="795" y="255" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="8">User + Recipe Storage</text>
+    <text x="795" y="268" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="8">Vector Search Index</text>
+
+    <!-- Arrows: Backend to External APIs -->
+    <line x1="540" y1="157" x2="135" y2="208" stroke="#a855f7" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrow-purple)"/>
+    <line x1="570" y1="157" x2="355" y2="208" stroke="#06b6d4" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrow-cyan)"/>
+    <line x1="595" y1="157" x2="575" y2="208" stroke="#f97316" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrow-orange)"/>
+    <line x1="650" y1="157" x2="795" y2="208" stroke="#22c55e" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrow-green)"/>
+
+    <!-- Backend Internal Architecture -->
+    <text x="450" y="335" text-anchor="middle" fill="#f59e0b" font-family="Inter" font-size="12" font-weight="800" letter-spacing="2">BACKEND INTERNAL (MVC + SERVICE LAYER)</text>
+
+    <rect x="50" y="360" width="150" height="65" rx="10" fill="#1a1a28" stroke="#3b82f6" stroke-width="1.5"/>
+    <text x="125" y="385" text-anchor="middle" fill="#3b82f6" font-family="Inter" font-size="9" font-weight="700">📡 ROUTES</text>
+    <text x="125" y="400" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="7.5">recipeRoutes.js</text>
+    <text x="125" y="413" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="7.5">authRoutes.js</text>
+
+    <rect x="240" y="360" width="150" height="65" rx="10" fill="#1a1a28" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="315" y="385" text-anchor="middle" fill="#f59e0b" font-family="Inter" font-size="9" font-weight="700">🎮 CONTROLLERS</text>
+    <text x="315" y="400" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="7.5">recipeController.js</text>
+    <text x="315" y="413" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="7.5">authController.js</text>
+
+    <rect x="430" y="360" width="150" height="65" rx="10" fill="#1a1a28" stroke="#22c55e" stroke-width="1.5"/>
+    <text x="505" y="385" text-anchor="middle" fill="#22c55e" font-family="Inter" font-size="9" font-weight="700">⚙️ SERVICES</text>
+    <text x="505" y="400" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="7.5">aiService.js</text>
+    <text x="505" y="413" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="7.5">youtubeService.js</text>
+
+    <rect x="620" y="360" width="130" height="65" rx="10" fill="#1a1a28" stroke="#a855f7" stroke-width="1.5"/>
+    <text x="685" y="385" text-anchor="middle" fill="#a855f7" font-family="Inter" font-size="9" font-weight="700">📦 MODELS</text>
+    <text x="685" y="400" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="7.5">User.js</text>
+    <text x="685" y="413" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="7.5">recipe.js</text>
+
+    <rect x="780" y="360" width="100" height="65" rx="10" fill="#1a1a28" stroke="#ef4444" stroke-width="1.5"/>
+    <text x="830" y="385" text-anchor="middle" fill="#ef4444" font-family="Inter" font-size="9" font-weight="700">🔒 MIDDLEWARE</text>
+    <text x="830" y="405" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="7.5">authMiddleware.js</text>
+
+    <!-- Flow arrows in backend -->
+    <line x1="202" y1="393" x2="238" y2="393" stroke="#8888a0" stroke-width="1.5" marker-end="url(#arrow-muted)"/>
+    <line x1="392" y1="393" x2="428" y2="393" stroke="#8888a0" stroke-width="1.5" marker-end="url(#arrow-muted)"/>
+    <line x1="582" y1="393" x2="618" y2="393" stroke="#8888a0" stroke-width="1.5" marker-end="url(#arrow-muted)"/>
+
+    <!-- Legend -->
+    <text x="100" y="470" fill="#8888a0" font-family="Inter" font-size="8">🔸 Solid = direct call</text>
+    <text x="100" y="485" fill="#8888a0" font-family="Inter" font-size="8">🔹 Dashed = external API call</text>
+    <text x="300" y="470" fill="#8888a0" font-family="Inter" font-size="8">Request Flow: Routes → Middleware → Controllers → Services → Models/APIs</text>
+
+    <!-- Port Info -->
+    <rect x="220" y="160" width="80" height="20" rx="5" fill="#3b82f620"/>
+    <text x="260" y="174" text-anchor="middle" fill="#3b82f6" font-family="JetBrains Mono" font-size="8" font-weight="600">:5173</text>
+    <rect x="555" y="160" width="80" height="20" rx="5" fill="#22c55e20"/>
+    <text x="595" y="174" text-anchor="middle" fill="#22c55e" font-family="JetBrains Mono" font-size="8" font-weight="600">:8000</text>
+
+    <!-- Arrow Markers -->
+    <defs>
+      <marker id="arrow-amber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#f59e0b"/></marker>
+      <marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#3b82f6"/></marker>
+      <marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#22c55e"/></marker>
+      <marker id="arrow-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a855f7"/></marker>
+      <marker id="arrow-cyan" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#06b6d4"/></marker>
+      <marker id="arrow-orange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#f97316"/></marker>
+      <marker id="arrow-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8888a0"/></marker>
+      <marker id="arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ef4444"/></marker>
+    </defs>
+  </svg>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- SECTION 3: TECH STACK                                          -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section id="s3" class="page-break">
+  <div class="section-header">
+    <div class="section-number">Section 03</div>
+    <h2>Complete Tech Stack</h2>
+  </div>
+
+  <h3>Backend Stack</h3>
+  <table>
+    <thead>
+      <tr><th>Technology</th><th>Role</th><th>Why This Choice</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="chip green">Node.js</span></td><td>JavaScript runtime</td><td>Same language as frontend; non-blocking I/O perfect for API servers</td></tr>
+      <tr><td><span class="chip green">Express.js v5</span></td><td>Web framework</td><td>Minimal, unopinionated; easy routing, middleware composition</td></tr>
+      <tr><td><span class="chip green">Mongoose v9</span></td><td>MongoDB ODM</td><td>Schema validation, built-in TypeCasting, elegant query API</td></tr>
+      <tr><td><span class="chip purple">Groq SDK (OpenAI)</span></td><td>AI inference</td><td>OpenAI-compatible SDK → Groq's ultra-fast inference (free tier)</td></tr>
+      <tr><td><span class="chip cyan">youtube-dl-exec</span></td><td>Video/audio download</td><td>Node.js wrapper for yt-dlp; supports YouTube + Instagram</td></tr>
+      <tr><td><span class="chip cyan">ffmpeg-static</span></td><td>Audio transcoding</td><td>Converts to MP3 format; bundled binary — no system install needed</td></tr>
+      <tr><td><span class="chip cyan">fluent-ffmpeg</span></td><td>FFmpeg interface</td><td>Programmatic FFmpeg control from Node.js</td></tr>
+      <tr><td><span class="chip cyan">axios</span></td><td>HTTP client</td><td>Used for Supadata API calls (cleaner than node-fetch)</td></tr>
+      <tr><td><span class="chip red">bcryptjs</span></td><td>Password hashing</td><td>Pure JS implementation; 10-round salt for security</td></tr>
+      <tr><td><span class="chip red">jsonwebtoken</span></td><td>JWT auth</td><td>Stateless authentication with 7-day token expiry</td></tr>
+      <tr><td><span class="chip red">express-rate-limit</span></td><td>Rate limiting</td><td>Protects free API quotas; prevents brute-force</td></tr>
+      <tr><td><span class="chip acc">cors</span></td><td>CORS middleware</td><td>Allows frontend (different port/domain) to make requests</td></tr>
+      <tr><td><span class="chip acc">dotenv</span></td><td>Env variables</td><td>Loads .env into process.env; keeps secrets out of code</td></tr>
+      <tr><td><span class="chip acc">nodemon</span></td><td>Dev server</td><td>Auto-restarts server on file changes (dev only)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Frontend Stack</h3>
+  <table>
+    <thead>
+      <tr><th>Technology</th><th>Role</th><th>Why This Choice</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="chip blue">React 19</span></td><td>UI library</td><td>Component-based, declarative rendering, massive ecosystem</td></tr>
+      <tr><td><span class="chip blue">Vite 8</span></td><td>Build tool / dev server</td><td>Lightning-fast HMR via native ES modules; instant cold starts</td></tr>
+      <tr><td><span class="chip blue">Tailwind CSS v4</span></td><td>Utility-first CSS</td><td>Rapid styling with zero context-switching; built-in theme system</td></tr>
+      <tr><td><span class="chip purple">Framer Motion</span></td><td>Animation library</td><td>Physics-based animations; AnimatePresence for mount/unmount</td></tr>
+      <tr><td><span class="chip acc">Lucide React</span></td><td>Icons</td><td>Tree-shakeable SVG icons; clean, consistent design</td></tr>
+      <tr><td><span class="chip acc">clsx + tailwind-merge</span></td><td>Class utilities</td><td>Conditional class names without conflicts</td></tr>
+    </tbody>
+  </table>
+
+  <h3>AI Models (via Groq)</h3>
+  <table>
+    <thead>
+      <tr><th>Model</th><th>Purpose</th><th>Config</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="chip purple">whisper-large-v3-turbo</span></td><td>Primary speech-to-text</td><td>Fast, high limit (primary)</td></tr>
+      <tr><td><span class="chip purple">whisper-large-v3</span></td><td>Fallback speech-to-text</td><td>Used when turbo is rate-limited (429)</td></tr>
+      <tr><td><span class="chip purple">llama-3.3-70b-versatile</span></td><td>Recipe generation + Q&A + RAG</td><td>temp: 0.3 (recipe), 0.5 (Q&A)</td></tr>
+      <tr><td><span class="chip cyan">text-embedding-3-small</span></td><td>Vector embeddings (via OpenRouter)</td><td>1536 dimensions for recipe similarity</td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- SECTION 4: FOLDER STRUCTURE                                    -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section id="s4" class="page-break">
+  <div class="section-header">
+    <div class="section-number">Section 04</div>
+    <h2>Folder Structure — Annotated</h2>
+  </div>
+
+  <pre><code>recipe-ai-app/
+├── .gitignore                        # Root-level git ignore (node_modules, .env, .DS_Store)
+│
+├── backend/                          # ─── Express.js API Server ───
+│   ├── .env                          # 🔑 API keys (GROQ, SUPADATA, OPENROUTER, JWT_SECRET, MONGO_URI)
+│   ├── .gitignore
+│   ├── package.json                  # Dependencies + scripts (start, dev)
+│   ├── temp/                         # 📁 Temporary MP3 files (auto-created, auto-cleaned)
+│   └── src/
+│       ├── server.js                 # ⭐ Entry point — Express app, middleware, route mounting
+│       │
+│       ├── config/
+│       │   └── db.js                 # 🍃 MongoDB connection via Mongoose
+│       │
+│       ├── routes/
+│       │   ├── recipeRoutes.js       # 📡 Recipe endpoints (generate, save, query, rag, history)
+│       │   └── authRoutes.js         # 📡 Auth endpoints (signup, login)
+│       │
+│       ├── controllers/
+│       │   ├── recipeController.js   # 🎮 Business logic — generateRecipe, saveRecipe, ragQuery, etc.
+│       │   └── authController.js     # 🎮 Auth logic — signup (bcrypt hash), login (JWT sign)
+│       │
+│       ├── services/
+│       │   ├── aiService.js          # ⚙️ AI Pipeline — download audio, transcribe, convert to recipe
+│       │   └── youtubeService.js     # ⚙️ Supadata API — YouTube caption extraction (proxy)
+│       │
+│       ├── middlewares/
+│       │   └── authMiddleware.js     # 🔒 JWT verification middleware (req.user = decoded)
+│       │
+│       ├── models/
+│       │   ├── User.js               # 📦 User schema (email + hashed password)
+│       │   └── recipe.js             # 📦 Recipe schema (userId, url, recipe, embedding, title)
+│       │
+│       ├── utils/
+│       │   └── simmilarity.js        # 🧮 Cosine similarity function (legacy, replaced by Atlas)
+│       │
+│       └── cookies.txt               # 🍪 YouTube cookies (decoded from env at startup)
+│
+└── frontend/                         # ─── React + Vite Application ───
+    ├── .env                          # VITE_API_URL=http://localhost:8000
+    ├── index.html                    # HTML entry point (&lt;div id="root"&gt;)
+    ├── vite.config.js                # Vite config (React plugin + Tailwind plugin)
+    ├── eslint.config.js
+    ├── package.json                  # Dependencies + scripts (dev, build, lint, preview)
+    ├── public/
+    │   ├── favicon.svg
+    │   └── icons.svg
+    └── src/
+        ├── main.jsx                  # ⭐ React DOM render entry point
+        ├── App.jsx                   # ⭐ Root component — Auth gate (token check)
+        ├── index.css                 # 🎨 Global styles, theme vars, glassmorphism, shimmer
+        ├── assets/
+        │   └── hero.png
+        └── pages/
+            ├── AuthPage.jsx          # 📄 Login / Signup page (glassmorphism card)
+            └── Dashboard.jsx         # 📄 Main app — Home screen, Recipe dashboard, Saved recipes
+</code></pre>
+
+  <h3>Architecture Pattern: MVC + Service Layer</h3>
+  <div class="info-box blue">
+    <strong>Design Pattern</strong>
+    The backend follows <strong>MVC + Service Layer</strong>: Routes handle URL mapping → Middleware authenticates → Controllers orchestrate → Services do heavy lifting → Models interact with DB. This separation makes the code testable and maintainable.
+  </div>
+
+  <table>
+    <thead><tr><th>Layer</th><th>Responsibility</th><th>Analogy</th></tr></thead>
+    <tbody>
+      <tr><td><code>routes/</code></td><td>Maps URL paths to controller functions</td><td>Receptionist directing calls</td></tr>
+      <tr><td><code>middlewares/</code></td><td>Runs before controllers (auth, rate limit)</td><td>Security guard checking badges</td></tr>
+      <tr><td><code>controllers/</code></td><td>Receives request, calls services, sends response</td><td>Manager delegating work</td></tr>
+      <tr><td><code>services/</code></td><td>Reusable business logic (AI, downloads, APIs)</td><td>Specialist teams doing the work</td></tr>
+      <tr><td><code>models/</code></td><td>Database schema definitions (Mongoose)</td><td>Forms/templates for data</td></tr>
+      <tr><td><code>config/</code></td><td>DB connection setup</td><td>IT infrastructure</td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- SECTION 5: BACKEND DEEP DIVE                                   -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section id="s5" class="page-break">
+  <div class="section-header">
+    <div class="section-number">Section 05</div>
+    <h2>Backend Deep Dive — Every File Explained</h2>
+  </div>
+
+  <h3>5.1 server.js — The Entry Point</h3>
+  <p>This is the first file that runs when you start the backend. It orchestrates everything:</p>
+
+  <div class="flow-step"><div class="flow-number">1</div><div class="flow-content"><strong>Cookie Decoding</strong> — If <code>YT_COOKIES_B64</code> env var exists, it decodes the base64 YouTube cookies and writes them to <code>cookies.txt</code> (needed for YouTube auth on cloud servers like Render)</div></div>
+  <div class="flow-step"><div class="flow-number">2</div><div class="flow-content"><strong>Middleware Setup</strong> — CORS (whitelist localhost:5173 + Vercel domain), JSON body parsing, trust proxy (for Render)</div></div>
+  <div class="flow-step"><div class="flow-number">3</div><div class="flow-content"><strong>Rate Limiters</strong> — 3 tiers: Global (100/15min), Recipe (10/hour), Auth (20/15min)</div></div>
+  <div class="flow-step"><div class="flow-number">4</div><div class="flow-content"><strong>Route Mounting</strong> — <code>/api/recipe</code> → recipeRoutes, <code>/api/auth</code> → authRoutes</div></div>
+  <div class="flow-step"><div class="flow-number">5</div><div class="flow-content"><strong>DB Connection</strong> — <code>connectDB()</code> calls Mongoose connect</div></div>
+  <div class="flow-step"><div class="flow-number">6</div><div class="flow-content"><strong>Listen</strong> — Starts on <code>PORT</code> from .env (default 8000)</div></div>
+
+  <pre><code>// Key middleware pipeline:
+HTTP Request
+  → cors()           // Cross-origin allowed
+  → express.json()   // Parse JSON body
+  → globalLimiter    // 100 req/15min
+  → route-specific limiter (recipeLimiter or authLimiter)
+  → authMiddleware   // JWT verify (on protected routes)
+  → Controller       // Business logic
+  → Response</code></pre>
+
+  <h3>5.2 recipeRoutes.js — URL Routing</h3>
+  <table>
+    <thead><tr><th>Method</th><th>URL</th><th>Auth?</th><th>Controller</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><span class="chip green">GET</span></td><td><code>/api/recipe/</code></td><td>No</td><td>Inline</td><td>Health check</td></tr>
+      <tr><td><span class="chip blue">POST</span></td><td><code>/api/recipe/generate</code></td><td>✅ JWT</td><td><code>generateRecipe</code></td><td>URL → structured recipe</td></tr>
+      <tr><td><span class="chip blue">POST</span></td><td><code>/api/recipe/save</code></td><td>✅ JWT</td><td><code>saveRecipe</code></td><td>Save recipe + embedding to DB</td></tr>
+      <tr><td><span class="chip blue">POST</span></td><td><code>/api/recipe/query</code></td><td>✅ JWT</td><td><code>ingredientQuery</code></td><td>AI Q&A about ingredients</td></tr>
+      <tr><td><span class="chip blue">POST</span></td><td><code>/api/recipe/rag</code></td><td>✅ JWT</td><td><code>ragQuery</code></td><td>RAG: suggest or generate from history</td></tr>
+      <tr><td><span class="chip green">GET</span></td><td><code>/api/recipe/history</code></td><td>✅ JWT</td><td><code>getHistory</code></td><td>Fetch user's saved recipes</td></tr>
+    </tbody>
+  </table>
+
+  <h3>5.3 authRoutes.js</h3>
+  <table>
+    <thead><tr><th>Method</th><th>URL</th><th>Controller</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><span class="chip blue">POST</span></td><td><code>/api/auth/signup</code></td><td><code>signup</code></td><td>Create user (bcrypt hash)</td></tr>
+      <tr><td><span class="chip blue">POST</span></td><td><code>/api/auth/login</code></td><td><code>login</code></td><td>Verify credentials → return JWT</td></tr>
+    </tbody>
+  </table>
+
+  <h3>5.4 recipeController.js — Core Business Logic</h3>
+
+  <h4>generateRecipe(req, res)</h4>
+  <pre><code>1. Extract `url` from req.body
+2. Call getTranscriptSmart(url)  → text transcript
+3. Call convertTranscript(text)  → structured JSON recipe
+4. Return { message, recipe }</code></pre>
+
+  <h4>saveRecipe(req, res)</h4>
+  <pre><code>1. Check for duplicate (userId + url)
+2. Build embeddingText from recipe title + ingredient names
+3. Call OpenRouter → text-embedding-3-small → get 1536-dim vector
+4. Create Recipe document with embedding
+5. Return saved recipe</code></pre>
+  <div class="info-box purple">
+    <strong>💡 Why Embeddings?</strong>
+    Embeddings convert recipe text into a numerical vector. Similar recipes have similar vectors. This enables semantic search — when a user types "something spicy with chicken", the system finds recipes with similar ingredients/style using vector distance, not keyword matching.
+  </div>
+
+  <h4>ingredientQuery(req, res)</h4>
+  <pre><code>1. Takes question + current ingredients array
+2. Builds a cooking assistant prompt
+3. Sends to LLaMA 3.3 (temp: 0.5, max_tokens: 200)
+4. Returns { answer }</code></pre>
+
+  <h4>ragQuery(req, res) — The RAG Pipeline</h4>
+  <pre><code>1. Embed user's query via OpenRouter
+2. Run MongoDB Atlas $vectorSearch (top 20 candidates, recipe_vector_index)
+3. Filter results to current user only
+4. MODE "suggest": return top 3 matching recipes
+5. MODE "generate": use top 3 as context for LLaMA → generate NEW personalized recipe</code></pre>
+
+  <h3>5.5 aiService.js — The AI Pipeline (Heart of the App)</h3>
+
+  <h4>downloadAudio(url, outputPath)</h4>
+  <ul>
+    <li>Uses <code>youtube-dl-exec</code> (yt-dlp wrapper) to download audio</li>
+    <li>Platform detection: Instagram vs YouTube (different headers)</li>
+    <li>YouTube: Uses <code>extractorArgs: 'youtube:player_client=mediaconnect,web'</code> to avoid bot detection</li>
+    <li>Instagram: Adds <code>x-ig-app-id</code> header</li>
+    <li>If cookies.txt exists, uses YouTube authentication cookies</li>
+    <li>Adds sleep intervals to look less bot-like</li>
+    <li>Converts to MP3 via FFmpeg</li>
+  </ul>
+
+  <h4>transcribeAudio(filePath)</h4>
+  <pre><code>Primary:  whisper-large-v3-turbo  (fast, high limit)
+     ↓ (if 429 rate limit)
+Fallback: whisper-large-v3        (solid, stricter limits)
+     ↓ (if both fail)
+Error:    "Bite Bot is currently saturated. Please wait 60 seconds."</code></pre>
+
+  <h4>getTranscriptSmart(url) — The Orchestrator</h4>
+
+  <svg class="svg-diagram" viewBox="0 0 800 340" xmlns="http://www.w3.org/2000/svg">
+    <rect width="800" height="340" fill="#12121a" rx="12"/>
+    <text x="400" y="30" text-anchor="middle" fill="#f59e0b" font-family="Inter" font-size="12" font-weight="800" letter-spacing="2">SMART TRANSCRIPT EXTRACTION STRATEGY</text>
+
+    <!-- Start -->
+    <rect x="310" y="50" width="180" height="40" rx="20" fill="#f59e0b" />
+    <text x="400" y="75" text-anchor="middle" fill="#000" font-family="Inter" font-size="10" font-weight="800">URL RECEIVED</text>
+
+    <!-- Decision -->
+    <polygon points="400,110 480,150 400,190 320,150" fill="#1a1a28" stroke="#3b82f6" stroke-width="2"/>
+    <text x="400" y="155" text-anchor="middle" fill="#3b82f6" font-family="Inter" font-size="9" font-weight="700">YouTube?</text>
+
+    <!-- YES path -->
+    <line x1="320" y1="150" x2="180" y2="150" stroke="#22c55e" stroke-width="2" marker-end="url(#arrow-green)"/>
+    <text x="250" y="143" text-anchor="middle" fill="#22c55e" font-family="Inter" font-size="8" font-weight="700">YES</text>
+
+    <rect x="50" y="130" width="130" height="45" rx="10" fill="#1a1a28" stroke="#06b6d4" stroke-width="1.5"/>
+    <text x="115" y="148" text-anchor="middle" fill="#06b6d4" font-family="Inter" font-size="8" font-weight="700">STRATEGY 1</text>
+    <text x="115" y="163" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="7">Supadata API</text>
+
+    <!-- Strategy 1 Decision -->
+    <polygon points="115,195 160,220 115,245 70,220" fill="#1a1a28" stroke="#06b6d4" stroke-width="1.5"/>
+    <text x="115" y="224" text-anchor="middle" fill="#06b6d4" font-family="Inter" font-size="7" font-weight="700">text > 20?</text>
+
+    <line x1="115" y1="175" x2="115" y2="195" stroke="#06b6d4" stroke-width="1.5"/>
+
+    <!-- Strategy 1 Success -->
+    <line x1="70" y1="220" x2="20" y2="220" stroke="#22c55e" stroke-width="1.5"/>
+    <rect x="10" y="258" width="100" height="35" rx="8" fill="#22c55e20" stroke="#22c55e" stroke-width="1.5"/>
+    <text x="60" y="280" text-anchor="middle" fill="#22c55e" font-family="Inter" font-size="8" font-weight="700">✅ RETURN</text>
+    <line x1="20" y1="220" x2="20" y2="258" stroke="#22c55e" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+    <text x="45" y="213" fill="#22c55e" font-family="Inter" font-size="7">YES</text>
+
+    <!-- Strategy 1 Fail → Strategy 2 -->
+    <line x1="160" y1="220" x2="340" y2="220" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="4,3"/>
+    <text x="250" y="213" fill="#ef4444" font-family="Inter" font-size="7">NO / ERROR → fallback</text>
+
+    <!-- NO path (Instagram/other) -->
+    <line x1="480" y1="150" x2="620" y2="150" stroke="#ef4444" stroke-width="2" marker-end="url(#arrow-red)"/>
+    <text x="550" y="143" text-anchor="middle" fill="#ef4444" font-family="Inter" font-size="8" font-weight="700">NO (Instagram/other)</text>
+
+    <!-- Strategy 2 -->
+    <rect x="340" y="200" width="340" height="50" rx="10" fill="#1a1a28" stroke="#a855f7" stroke-width="2"/>
+    <text x="510" y="218" text-anchor="middle" fill="#a855f7" font-family="Inter" font-size="9" font-weight="700">STRATEGY 2: yt-dlp → Whisper</text>
+    <text x="510" y="236" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="7">Download audio → Transcribe → Delete temp file</text>
+
+    <line x1="690" y1="150" x2="690" y2="200" stroke="#ef4444" stroke-width="1.5" marker-end="url(#arrow-red)"/>
+
+    <!-- Strategy 2 Success -->
+    <rect x="430" y="280" width="160" height="35" rx="8" fill="#22c55e20" stroke="#22c55e" stroke-width="1.5"/>
+    <text x="510" y="302" text-anchor="middle" fill="#22c55e" font-family="Inter" font-size="9" font-weight="700">✅ RETURN TRANSCRIPT</text>
+    <line x1="510" y1="252" x2="510" y2="278" stroke="#22c55e" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+  </svg>
+
+  <h4>convertTranscript(transcript)</h4>
+  <p>Sends transcript to <strong>LLaMA 3.3</strong> with a detailed prompt asking for:</p>
+  <ul>
+    <li><strong>Ingredients</strong>: name, quantity, emoji, fat, protein, carbs, vitamins, purpose, alternatives, skippable, impact</li>
+    <li><strong>Title</strong>: Short recipe name + creator (e.g., "Butter Chicken by Chef Ranveer")</li>
+    <li><strong>Steps</strong>: Ordered cooking instructions</li>
+  </ul>
+  <pre><code>Config: {
+  model: "llama-3.3-70b-versatile",
+  response_format: { type: "json_object" },  // ← Forces valid JSON output!
+  temperature: 0.3,                           // ← Low randomness = consistent output
+  max_tokens: 2000
+}</code></pre>
+
+  <h3>5.6 youtubeService.js — Caption Proxy</h3>
+  <ul>
+    <li><code>extractVideoId(url)</code> — Regex to extract 11-char video ID from any YouTube URL format</li>
+    <li><code>getTranscript(url)</code> — Calls Supadata API with the video ID to fetch captions</li>
+    <li>Handles multiple response formats (array of segments, plain text, etc.)</li>
+    <li>Returns cleaned, concatenated transcript text</li>
+  </ul>
+
+  <h3>5.7 authMiddleware.js</h3>
+  <pre><code>1. Extract token from Authorization header ("Bearer &lt;token&gt;")
+2. jwt.verify(token, JWT_SECRET)
+3. Set req.user = decoded  // { id: userId }
+4. next() → proceed to controller</code></pre>
+
+  <h3>5.8 Utility: Cosine Similarity (Legacy)</h3>
+  <pre><code>// Used before MongoDB Atlas Vector Search was implemented
+function cosineSimilarity(a, b) {
+  dot = Σ(a[i] * b[i])
+  return dot / (||a|| * ||b||)
+  // Range: -1 to 1 (1 = identical, 0 = unrelated)
+}</code></pre>
+  <div class="info-box">
+    <strong>📝 Note</strong>
+    This was replaced by MongoDB Atlas <code>$vectorSearch</code> which does the same computation but at the database level — much faster for large datasets.
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- SECTION 6: FRONTEND DEEP DIVE                                  -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section id="s6" class="page-break">
+  <div class="section-header">
+    <div class="section-number">Section 06</div>
+    <h2>Frontend Deep Dive — Every File Explained</h2>
+  </div>
+
+  <h3>6.1 App.jsx — The Auth Gate</h3>
+  <pre><code>function App() {
+  // Check localStorage for JWT token
+  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
+
+  // Listen for cross-tab token changes
+  useEffect(() => {
+    window.addEventListener("storage", checkToken);
+  }, []);
+
+  // Conditional rendering:
+  return isLoggedIn ? &lt;Dashboard /&gt; : &lt;AuthPage /&gt;;
+}</code></pre>
+  <div class="info-box blue">
+    <strong>💡 Pattern: Token-Based Auth Gate</strong>
+    No React Router needed. The app simply checks if a JWT token exists in localStorage. If yes → Dashboard. If no → AuthPage. The <code>storage</code> event listener syncs login state across browser tabs.
+  </div>
+
+  <h3>6.2 AuthPage.jsx — Login/Signup</h3>
+  <p>A single page with tab switching between Sign In and Sign Up:</p>
+  <ul>
+    <li><strong>State</strong>: isLogin, email, password, loading, error</li>
+    <li><strong>Sign Up</strong>: POST to <code>/api/auth/signup</code> → on success, auto-switches to login tab</li>
+    <li><strong>Sign In</strong>: POST to <code>/api/auth/login</code> → stores JWT token → sets <code>isLoggedIn = true</code></li>
+    <li><strong>UI</strong>: Glassmorphism card with saffron glow, animated chef hat icon</li>
+  </ul>
+
+  <h3>6.3 Dashboard.jsx — The Main Application (1066 lines)</h3>
+  <p>This is the largest file. It contains the entire application UI and logic.</p>
+
+  <h4>State Management (17 state variables)</h4>
+  <table>
+    <thead><tr><th>State</th><th>Type</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><code>url</code></td><td>string</td><td>Video URL input value</td></tr>
+      <tr><td><code>recipe</code></td><td>object | null</td><td>Parsed recipe from API (toggles screen)</td></tr>
+      <tr><td><code>loading</code></td><td>boolean</td><td>Shows loading state during API calls</td></tr>
+      <tr><td><code>currentStep</code></td><td>number</td><td>Active cooking step index (0-based)</td></tr>
+      <tr><td><code>listening</code></td><td>boolean</td><td>Voice recognition active state</td></tr>
+      <tr><td><code>chatHistory</code></td><td>array</td><td>AI chat messages [{role, content}]</td></tr>
+      <tr><td><code>activeIngredient</code></td><td>number | null</td><td>Expanded ingredient card index</td></tr>
+      <tr><td><code>theme</code></td><td>"dark" | "light"</td><td>Current theme mode</td></tr>
+      <tr><td><code>showIngredientsMobile</code></td><td>boolean</td><td>Mobile ingredients panel toggle</td></tr>
+      <tr><td><code>isExploding</code></td><td>boolean</td><td>Supernova transition animation</td></tr>
+      <tr><td><code>activeTab</code></td><td>"generate" | "saved"</td><td>Main navigation tab</td></tr>
+      <tr><td><code>savedRecipes</code></td><td>array</td><td>User's saved recipes from DB</td></tr>
+      <tr><td><code>saveToast</code></td><td>boolean</td><td>Toast notification visibility</td></tr>
+      <tr><td><code>ragQuery</code></td><td>string</td><td>RAG search input value</td></tr>
+      <tr><td><code>ragResults</code></td><td>array</td><td>RAG suggestion results</td></tr>
+      <tr><td><code>ragAnswer</code></td><td>string</td><td>RAG generated answer text</td></tr>
+      <tr><td><code>mobileMenuOpen</code></td><td>boolean</td><td>Hamburger menu state</td></tr>
+    </tbody>
+  </table>
+
+  <h4>Key Functions</h4>
+  <table>
+    <thead><tr><th>Function</th><th>What It Does</th><th>Key Detail</th></tr></thead>
+    <tbody>
+      <tr><td><code>handleSubmit()</code></td><td>Sends URL to backend, triggers Supernova, sets recipe</td><td>2-second animation delay before showing dashboard</td></tr>
+      <tr><td><code>handleSave()</code></td><td>Saves current recipe to MongoDB</td><td>Shows toast notification for 3 seconds</td></tr>
+      <tr><td><code>handleRag(mode)</code></td><td>Calls /api/recipe/rag with "suggest" or "generate" mode</td><td>"generate" triggers Supernova + loads new recipe</td></tr>
+      <tr><td><code>speakStep(text)</code></td><td>Text-to-Speech via Web Speech API</td><td>Rate: 1.1x, cancels previous speech first</td></tr>
+      <tr><td><code>startListening()</code></td><td>Starts voice recognition (continuous mode)</td><td>"next"/"back"/"repeat" = step control; anything else = AI query</td></tr>
+      <tr><td><code>askAI(question)</code></td><td>Sends question to /api/recipe/query</td><td>Adds to chatHistory, speaks answer aloud</td></tr>
+      <tr><td><code>loadSavedRecipes()</code></td><td>Fetches /api/recipe/history</td><td>Triggered when activeTab changes to "saved"</td></tr>
+    </tbody>
+  </table>
+
+  <h3>6.4 index.css — Design System</h3>
+  <div class="columns">
+    <div>
+      <h4>Theme Variables</h4>
+      <pre><code>:root (Dark)          :root.light
+─────────────         ──────────────
+bg: #000              bg: #faf7f2
+text: #f4f4f5         text: #20242d
+surface: navy/40%     surface: white/78%
+border: white/8%      border: black/6%
+accent: #f59e0b       accent: #f59e0b</code></pre>
+    </div>
+    <div>
+      <h4>Key CSS Components</h4>
+      <pre><code>.glass-island → Glassmorphism card
+  backdrop-filter: blur(32px)
+  semi-transparent bg
+
+.glass-pill → Small pill/badge
+  blur(8px), subtle border
+
+.vital-essential → Red tint
+.vital-optional  → Yellow tint
+.vital-garnishing → Green tint
+
+.shimmer-bg → Animated gradient</code></pre>
+    </div>
+  </div>
+
+  <h3>6.5 Framer Motion Animations</h3>
+  <table>
+    <thead><tr><th>Animation</th><th>Where</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td><code>explosionContainer</code> + <code>explosionItem</code></td><td>Dashboard entry</td><td>Staggered reveal — each column fades/scales in with spring physics</td></tr>
+      <tr><td>Supernova overlay</td><td>After ENGAGE click</td><td>Full-screen black → food image zooms 5x + blurs 80px → fades out</td></tr>
+      <tr><td><code>AnimatePresence mode="wait"</code></td><td>Step transitions</td><td>3D rotateX flip between cooking steps</td></tr>
+      <tr><td><code>whileHover={{ rotate: 180 }}</code></td><td>Chef hat icon</td><td>Spins on hover</td></tr>
+      <tr><td>Floating badge</td><td>Home screen</td><td>Gentle <code>y: [0, -10, 0]</code> loop over 4 seconds</td></tr>
+      <tr><td>Voice pill</td><td>Bottom-right FAB</td><td>Scale + glow when listening; slide-in "Listening..." label</td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- SECTION 7: DATABASE DESIGN                                     -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section id="s7" class="page-break">
+  <div class="section-header">
+    <div class="section-number">Section 07</div>
+    <h2>Database Design (MongoDB + Vector Search)</h2>
+  </div>
+
+  <h3>User Collection</h3>
+  <pre><code>{
+  _id: ObjectId,
+  email: String (required, unique),
+  password: String (bcrypt hashed, required),
+  createdAt: Date (auto),
+  updatedAt: Date (auto)
+}</code></pre>
+
+  <h3>Recipe Collection</h3>
+  <pre><code>{
+  _id: ObjectId,
+  userId: ObjectId (ref: "User"),     // Which user saved this
+  url: String (required),              // Source video URL
+  title: String (required),            // "Butter Chicken by Chef X"
+  recipe: {                            // Full AI-generated recipe
+    title: String,
+    ingredients: [{
+      name, quantity, emoji, fat, protein, carbs,
+      vitamins, purpose, alternatives[], skippable, impact
+    }],
+    steps: [String]
+  },
+  embedding: [Number] (1536 dims),     // text-embedding-3-small vector
+  embeddingText: String,               // "Title\nIngredients: a, b, c"
+  createdAt: Date (auto),
+  updatedAt: Date (auto)
+}</code></pre>
+
+  <h3>MongoDB Atlas Vector Search Index</h3>
+  <div class="info-box purple">
+    <strong>Index Name: recipe_vector_index</strong>
+    <p>A special index created in MongoDB Atlas that enables <code>$vectorSearch</code> aggregation. It indexes the <code>embedding</code> field (1536-dimensional vectors) and allows approximate nearest neighbor (ANN) search for semantic similarity.</p>
+  </div>
+  <pre><code>// How it's used in ragQuery():
+await Recipe.aggregate([
+  {
+    $vectorSearch: {
+      index: "recipe_vector_index",
+      path: "embedding",           // Which field contains vectors
+      queryVector: queryEmbedding, // User's query vector
+      numCandidates: 50,          // Search breadth
+      limit: 20,                  // Max results
+    }
+  },
+  {
+    $project: {
+      title: 1, recipe: 1, userId: 1,
+      score: { $meta: "vectorSearchScore" }  // Similarity score
+    }
+  }
+]);</code></pre>
+
+  <svg class="svg-diagram" viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg">
+    <rect width="700" height="200" fill="#12121a" rx="12"/>
+    <text x="350" y="25" text-anchor="middle" fill="#f59e0b" font-family="Inter" font-size="11" font-weight="800" letter-spacing="2">EMBEDDING FLOW — SAVE & SEARCH</text>
+
+    <!-- Save flow -->
+    <rect x="30" y="50" width="100" height="35" rx="8" fill="#1a1a28" stroke="#3b82f6" stroke-width="1.5"/>
+    <text x="80" y="72" text-anchor="middle" fill="#3b82f6" font-family="Inter" font-size="8" font-weight="700">Recipe Text</text>
+
+    <line x1="132" y1="68" x2="168" y2="68" stroke="#8888a0" stroke-width="1.5" marker-end="url(#arrow-muted)"/>
+
+    <rect x="170" y="50" width="120" height="35" rx="8" fill="#1a1a28" stroke="#f97316" stroke-width="1.5"/>
+    <text x="230" y="72" text-anchor="middle" fill="#f97316" font-family="Inter" font-size="8" font-weight="700">OpenRouter API</text>
+
+    <line x1="292" y1="68" x2="328" y2="68" stroke="#8888a0" stroke-width="1.5" marker-end="url(#arrow-muted)"/>
+
+    <rect x="330" y="50" width="120" height="35" rx="8" fill="#1a1a28" stroke="#a855f7" stroke-width="1.5"/>
+    <text x="390" y="66" text-anchor="middle" fill="#a855f7" font-family="Inter" font-size="8" font-weight="700">[0.023, -0.15,</text>
+    <text x="390" y="78" text-anchor="middle" fill="#a855f7" font-family="Inter" font-size="7">...1536 dims]</text>
+
+    <line x1="452" y1="68" x2="488" y2="68" stroke="#8888a0" stroke-width="1.5" marker-end="url(#arrow-muted)"/>
+
+    <rect x="490" y="50" width="100" height="35" rx="8" fill="#1a1a28" stroke="#22c55e" stroke-width="1.5"/>
+    <text x="540" y="72" text-anchor="middle" fill="#22c55e" font-family="Inter" font-size="8" font-weight="700">MongoDB Save</text>
+
+    <text x="350" y="42" text-anchor="middle" fill="#22c55e" font-family="Inter" font-size="8" font-weight="700">SAVE FLOW</text>
+
+    <!-- Search flow -->
+    <text x="350" y="118" text-anchor="middle" fill="#3b82f6" font-family="Inter" font-size="8" font-weight="700">SEARCH FLOW</text>
+
+    <rect x="30" y="130" width="100" height="35" rx="8" fill="#1a1a28" stroke="#3b82f6" stroke-width="1.5"/>
+    <text x="80" y="152" text-anchor="middle" fill="#3b82f6" font-family="Inter" font-size="8" font-weight="700">User Query</text>
+
+    <line x1="132" y1="148" x2="168" y2="148" stroke="#8888a0" stroke-width="1.5" marker-end="url(#arrow-muted)"/>
+
+    <rect x="170" y="130" width="120" height="35" rx="8" fill="#1a1a28" stroke="#f97316" stroke-width="1.5"/>
+    <text x="230" y="152" text-anchor="middle" fill="#f97316" font-family="Inter" font-size="8" font-weight="700">Embed Query</text>
+
+    <line x1="292" y1="148" x2="328" y2="148" stroke="#8888a0" stroke-width="1.5" marker-end="url(#arrow-muted)"/>
+
+    <rect x="330" y="130" width="120" height="35" rx="8" fill="#1a1a28" stroke="#22c55e" stroke-width="1.5"/>
+    <text x="390" y="152" text-anchor="middle" fill="#22c55e" font-family="Inter" font-size="8" font-weight="700">$vectorSearch</text>
+
+    <line x1="452" y1="148" x2="488" y2="148" stroke="#8888a0" stroke-width="1.5" marker-end="url(#arrow-muted)"/>
+
+    <rect x="490" y="130" width="180" height="35" rx="8" fill="#1a1a28" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="580" y="152" text-anchor="middle" fill="#f59e0b" font-family="Inter" font-size="8" font-weight="700">Top 3 Similar Recipes</text>
+  </svg>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- SECTION 8: AUTHENTICATION                                      -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section id="s8" class="page-break">
+  <div class="section-header">
+    <div class="section-number">Section 08</div>
+    <h2>Authentication System (JWT)</h2>
+  </div>
+
+  <svg class="svg-diagram" viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg">
+    <rect width="800" height="300" fill="#12121a" rx="12"/>
+    <text x="400" y="25" text-anchor="middle" fill="#f59e0b" font-family="Inter" font-size="11" font-weight="800" letter-spacing="2">JWT AUTHENTICATION FLOW</text>
+
+    <!-- Signup Flow -->
+    <text x="400" y="55" text-anchor="middle" fill="#22c55e" font-family="Inter" font-size="9" font-weight="700">── SIGNUP ──</text>
+
+    <rect x="30" y="70" width="120" height="35" rx="8" fill="#1a1a28" stroke="#3b82f6" stroke-width="1.5"/>
+    <text x="90" y="92" text-anchor="middle" fill="#3b82f6" font-family="Inter" font-size="8" font-weight="700">email + pass</text>
+
+    <line x1="152" y1="88" x2="188" y2="88" stroke="#8888a0" stroke-width="1.5" marker-end="url(#arrow-muted)"/>
+
+    <rect x="190" y="70" width="130" height="35" rx="8" fill="#1a1a28" stroke="#ef4444" stroke-width="1.5"/>
+    <text x="255" y="92" text-anchor="middle" fill="#ef4444" font-family="Inter" font-size="8" font-weight="700">bcrypt.hash(p, 10)</text>
+
+    <line x1="322" y1="88" x2="358" y2="88" stroke="#8888a0" stroke-width="1.5" marker-end="url(#arrow-muted)"/>
+
+    <rect x="360" y="70" width="130" height="35" rx="8" fill="#1a1a28" stroke="#22c55e" stroke-width="1.5"/>
+    <text x="425" y="92" text-anchor="middle" fill="#22c55e" font-family="Inter" font-size="8" font-weight="700">User.create({...})</text>
+
+    <line x1="492" y1="88" x2="528" y2="88" stroke="#8888a0" stroke-width="1.5" marker-end="url(#arrow-muted)"/>
+
+    <rect x="530" y="70" width="140" height="35" rx="8" fill="#22c55e20" stroke="#22c55e" stroke-width="1.5"/>
+    <text x="600" y="92" text-anchor="middle" fill="#22c55e" font-family="Inter" font-size="8" font-weight="700">✅ "User created"</text>
+
+    <!-- Login Flow -->
+    <text x="400" y="140" text-anchor="middle" fill="#3b82f6" font-family="Inter" font-size="9" font-weight="700">── LOGIN ──</text>
+
+    <rect x="30" y="155" width="120" height="35" rx="8" fill="#1a1a28" stroke="#3b82f6" stroke-width="1.5"/>
+    <text x="90" y="177" text-anchor="middle" fill="#3b82f6" font-family="Inter" font-size="8" font-weight="700">email + pass</text>
+
+    <line x1="152" y1="173" x2="188" y2="173" stroke="#8888a0" stroke-width="1.5" marker-end="url(#arrow-muted)"/>
+
+    <rect x="190" y="155" width="110" height="35" rx="8" fill="#1a1a28" stroke="#a855f7" stroke-width="1.5"/>
+    <text x="245" y="177" text-anchor="middle" fill="#a855f7" font-family="Inter" font-size="8" font-weight="700">findOne({email})</text>
+
+    <line x1="302" y1="173" x2="338" y2="173" stroke="#8888a0" stroke-width="1.5" marker-end="url(#arrow-muted)"/>
+
+    <rect x="340" y="155" width="130" height="35" rx="8" fill="#1a1a28" stroke="#ef4444" stroke-width="1.5"/>
+    <text x="405" y="177" text-anchor="middle" fill="#ef4444" font-family="Inter" font-size="8" font-weight="700">bcrypt.compare()</text>
+
+    <line x1="472" y1="173" x2="508" y2="173" stroke="#8888a0" stroke-width="1.5" marker-end="url(#arrow-muted)"/>
+
+    <rect x="510" y="155" width="140" height="35" rx="8" fill="#1a1a28" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="580" y="171" text-anchor="middle" fill="#f59e0b" font-family="Inter" font-size="7" font-weight="700">jwt.sign({id}, SECRET</text>
+    <text x="580" y="182" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="7">{expiresIn: "7d"})</text>
+
+    <line x1="652" y1="173" x2="688" y2="173" stroke="#8888a0" stroke-width="1.5" marker-end="url(#arrow-muted)"/>
+
+    <rect x="690" y="155" width="80" height="35" rx="8" fill="#f59e0b20" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="730" y="177" text-anchor="middle" fill="#f59e0b" font-family="Inter" font-size="8" font-weight="700">{token}</text>
+
+    <!-- Protected Route Flow -->
+    <text x="400" y="225" text-anchor="middle" fill="#ef4444" font-family="Inter" font-size="9" font-weight="700">── PROTECTED ROUTES ──</text>
+
+    <rect x="30" y="240" width="160" height="35" rx="8" fill="#1a1a28" stroke="#3b82f6" stroke-width="1.5"/>
+    <text x="110" y="262" text-anchor="middle" fill="#3b82f6" font-family="Inter" font-size="7" font-weight="700">Authorization: Bearer &lt;token&gt;</text>
+
+    <line x1="192" y1="258" x2="228" y2="258" stroke="#8888a0" stroke-width="1.5" marker-end="url(#arrow-muted)"/>
+
+    <rect x="230" y="240" width="150" height="35" rx="8" fill="#1a1a28" stroke="#ef4444" stroke-width="1.5"/>
+    <text x="305" y="262" text-anchor="middle" fill="#ef4444" font-family="Inter" font-size="8" font-weight="700">authMiddleware</text>
+
+    <line x1="382" y1="258" x2="418" y2="258" stroke="#8888a0" stroke-width="1.5" marker-end="url(#arrow-muted)"/>
+
+    <rect x="420" y="240" width="150" height="35" rx="8" fill="#1a1a28" stroke="#a855f7" stroke-width="1.5"/>
+    <text x="495" y="256" text-anchor="middle" fill="#a855f7" font-family="Inter" font-size="7" font-weight="700">jwt.verify(token, SECRET)</text>
+    <text x="495" y="268" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="7">req.user = {id: ...}</text>
+
+    <line x1="572" y1="258" x2="608" y2="258" stroke="#8888a0" stroke-width="1.5" marker-end="url(#arrow-muted)"/>
+
+    <rect x="610" y="240" width="130" height="35" rx="8" fill="#22c55e20" stroke="#22c55e" stroke-width="1.5"/>
+    <text x="675" y="262" text-anchor="middle" fill="#22c55e" font-family="Inter" font-size="8" font-weight="700">→ Controller ✅</text>
+  </svg>
+
+  <div class="info-box red">
+    <strong>🔒 Security Details</strong>
+    <ul>
+      <li><strong>bcrypt rounds: 10</strong> — Each password hash takes ~100ms to compute (brute-force resistant)</li>
+      <li><strong>JWT expiry: 7 days</strong> — After expiry, user must re-login</li>
+      <li><strong>Token storage: localStorage</strong> — Sent as <code>Bearer &lt;token&gt;</code> in Authorization header</li>
+      <li><strong>No refresh tokens</strong> — Simple implementation; token expires and user re-authenticates</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- SECTION 9: RAG PIPELINE                                        -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section id="s9" class="page-break">
+  <div class="section-header">
+    <div class="section-number">Section 09</div>
+    <h2>RAG (Retrieval-Augmented Generation) Pipeline</h2>
+  </div>
+
+  <div class="info-box purple">
+    <strong>💡 What is RAG?</strong>
+    RAG combines information <strong>retrieval</strong> (searching your data) with AI <strong>generation</strong> (creating new content). Instead of the AI hallucinating recipes from scratch, it first retrieves your saved recipes that are most relevant to your query, then uses those as context to generate a personalized new recipe.
+  </div>
+
+  <h3>Two Modes</h3>
+  <div class="columns">
+    <div class="wire-box">
+      <div class="wire-label">MODE: SUGGEST</div>
+      <div class="wire-content">
+        <p><strong>User types:</strong> "something with paneer"</p>
+        <p>→ Embed query → $vectorSearch → Return top 3 matching saved recipes</p>
+        <p><strong>Output:</strong> Recipe cards the user can click to view</p>
+      </div>
+    </div>
+    <div class="wire-box">
+      <div class="wire-label">MODE: GENERATE</div>
+      <div class="wire-content">
+        <p><strong>User types:</strong> "high protein chicken"</p>
+        <p>→ Embed query → $vectorSearch → Use top 3 as context → LLaMA generates <em>new</em> recipe</p>
+        <p><strong>Output:</strong> Brand new recipe inspired by user's flavor profile</p>
+      </div>
+    </div>
+  </div>
+
+  <h3>RAG Flow (Step by Step)</h3>
+  <div class="flow-step"><div class="flow-number">1</div><div class="flow-content"><strong>Embed the query</strong> — Send user's text to OpenRouter <code>text-embedding-3-small</code> → get 1536-dim vector</div></div>
+  <div class="flow-step"><div class="flow-number">2</div><div class="flow-content"><strong>Vector Search</strong> — MongoDB Atlas <code>$vectorSearch</code> against <code>recipe_vector_index</code>: searches across ALL users (50 candidates), returns top 20 with similarity scores</div></div>
+  <div class="flow-step"><div class="flow-number">3</div><div class="flow-content"><strong>Filter to current user</strong> — <code>candidates.filter(r => r.userId === req.user.id)</code> then take top 3</div></div>
+  <div class="flow-step"><div class="flow-number">4a</div><div class="flow-content"><strong>If "suggest"</strong> → Return the 3 matched recipes directly to frontend</div></div>
+  <div class="flow-step"><div class="flow-number">4b</div><div class="flow-content"><strong>If "generate"</strong> → Build context from top 3 recipes (title, ingredients, style) → Send to LLaMA with prompt: "Generate a recipe for [query] inspired by user's past recipes"</div></div>
+
+  <h3>Why Vector Search Instead of Keyword Search?</h3>
+  <table>
+    <thead><tr><th>Feature</th><th>Keyword Search</th><th>Vector Search</th></tr></thead>
+    <tbody>
+      <tr><td>Query: "something spicy"</td><td>Only finds recipes with word "spicy"</td><td>Finds recipes with chili, cayenne, jalapeño, etc.</td></tr>
+      <tr><td>Query: "healthy dinner"</td><td>Matches "healthy" literal</td><td>Understands low-fat, high-protein, grilled = "healthy"</td></tr>
+      <tr><td>Semantic understanding</td><td>❌ None</td><td>✅ Full</td></tr>
+      <tr><td>Speed at scale</td><td>Fast (index on text)</td><td>Fast (ANN index on vectors)</td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- SECTION 10: END-TO-END DATA FLOW                               -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section id="s10" class="page-break">
+  <div class="section-header">
+    <div class="section-number">Section 10</div>
+    <h2>End-to-End Data Flow</h2>
+  </div>
+
+  <h3>Flow: User clicks "ENGAGE" with a YouTube URL</h3>
+
+  <div class="diagram-box">
+    <div class="diagram-title">Complete Request → Response Lifecycle</div>
+    <pre><code>
+┌────────────────────────────────────────────────────────────────────┐
+│  BROWSER (React, port 5173)                                        │
+│                                                                    │
+│  1. User types URL into input field                                │
+│  2. Clicks ENGAGE → handleSubmit() fires                           │
+│  3. Sets loading=true, shows spinner                               │
+│  4. fetch("/api/recipe/generate", {                                │
+│       method: "POST",                                              │
+│       headers: { Authorization: "Bearer &lt;JWT&gt;" },                  │
+│       body: { url }                                                │
+│     })                                                             │
+│                                                                    │
+│         ────── HTTP POST ──────►                                   │
+└────────────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌────────────────────────────────────────────────────────────────────┐
+│  EXPRESS SERVER (port 8000)                                         │
+│                                                                    │
+│  5. Middleware pipeline:                                           │
+│     cors() → express.json() → globalLimiter → recipeLimiter       │
+│                                                                    │
+│  6. recipeRoutes.js → authMiddleware (verify JWT)                  │
+│     → req.user = { id: "60a..." }                                 │
+│                                                                    │
+│  7. recipeController.generateRecipe(req, res)                      │
+│                                                                    │
+│  ┌── aiService.js ────────────────────────────────────────────┐    │
+│  │                                                            │    │
+│  │  8. getTranscriptSmart(url) decides strategy:              │    │
+│  │                                                            │    │
+│  │     ▶ STRATEGY 1 (YouTube only):                          │    │
+│  │       youtubeService.getTranscript(url)                    │    │
+│  │       → Supadata API → returns caption text instantly      │    │
+│  │                                                            │    │
+│  │     ▶ STRATEGY 2 (Fallback / Instagram):                  │    │
+│  │       a. downloadAudio(url) via yt-dlp → MP3 in temp/     │    │
+│  │       b. transcribeAudio(mp3) via Groq Whisper → text     │    │
+│  │       c. Delete temp MP3                                   │    │
+│  │                                                            │    │
+│  │  9. convertTranscript(text)                                │    │
+│  │     → Groq LLaMA 3.3 (JSON mode, temp=0.3)               │    │
+│  │     → { title, ingredients: [...], steps: [...] }         │    │
+│  │                                                            │    │
+│  └────────────────────────────────────────────────────────────┘    │
+│                                                                    │
+│  10. res.json({ message: "Recipe generated ✅", recipe })          │
+│                                                                    │
+│         ◄──── HTTP 200 JSON ────                                   │
+└────────────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌────────────────────────────────────────────────────────────────────┐
+│  BROWSER (React)                                                   │
+│                                                                    │
+│  11. setIsExploding(true) → "Supernova" animation starts           │
+│  12. After 2 seconds:                                              │
+│      setRecipe(data.recipe) → UI switches to 3-column dashboard    │
+│      setCurrentStep(0)                                             │
+│      setIsExploding(false)                                         │
+│  13. speakStep(recipe.steps[0]) → reads first step aloud           │
+│  14. User can now:                                                 │
+│      • Navigate steps (buttons or voice)                           │
+│      • Ask AI questions (chat or voice)                            │
+│      • Save recipe → /api/recipe/save                              │
+│      • View ingredients with nutrition data                        │
+│                                                                    │
+└────────────────────────────────────────────────────────────────────┘</code></pre>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- SECTION 11: API REFERENCE                                      -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section id="s11" class="page-break">
+  <div class="section-header">
+    <div class="section-number">Section 11</div>
+    <h2>API Reference — All Endpoints</h2>
+  </div>
+
+  <p><strong>Base URL:</strong> <code>http://localhost:8000</code> (dev) or deployed URL</p>
+
+  <h3>Health Checks</h3>
+  <table>
+    <thead><tr><th>Endpoint</th><th>Auth</th><th>Response</th></tr></thead>
+    <tbody>
+      <tr><td><span class="chip green">GET</span> <code>/</code></td><td>No</td><td><code>"API is running 🚀"</code></td></tr>
+      <tr><td><span class="chip green">GET</span> <code>/api/recipe/</code></td><td>No</td><td><code>"Recipe route working ✅"</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Authentication</h3>
+
+  <h4>POST /api/auth/signup</h4>
+  <div class="columns">
+    <div>
+      <strong>Request:</strong>
+      <pre><code>{ "email": "user@example.com", "password": "secret123" }</code></pre>
+    </div>
+    <div>
+      <strong>Response (200):</strong>
+      <pre><code>{ "message": "User created successfully" }</code></pre>
+    </div>
+  </div>
+
+  <h4>POST /api/auth/login</h4>
+  <div class="columns">
+    <div>
+      <strong>Request:</strong>
+      <pre><code>{ "email": "user@example.com", "password": "secret123" }</code></pre>
+    </div>
+    <div>
+      <strong>Response (200):</strong>
+      <pre><code>{ "token": "eyJhbGciOi..." }</code></pre>
+    </div>
+  </div>
+
+  <h3>Recipe Endpoints (All require JWT)</h3>
+
+  <h4>POST /api/recipe/generate</h4>
+  <div class="columns">
+    <div>
+      <strong>Request:</strong>
+      <pre><code>{ "url": "https://youtube.com/watch?v=..." }</code></pre>
+    </div>
+    <div>
+      <strong>Response (200):</strong>
+      <pre><code>{
+  "message": "Recipe generated ✅",
+  "recipe": {
+    "title": "Butter Chicken by Chef X",
+    "ingredients": [{
+      "name": "Chicken", "quantity": "500g",
+      "emoji": "🍗", "fat": "3g",
+      "protein": "31g", "carbs": "0g",
+      "vitamins": "B6, B12",
+      "purpose": "Main protein",
+      "alternatives": ["Tofu"],
+      "skippable": false,
+      "impact": "Core ingredient"
+    }],
+    "steps": ["Step 1...", "Step 2..."]
+  }
+}</code></pre>
+    </div>
+  </div>
+
+  <h4>POST /api/recipe/save</h4>
+  <pre><code>Request:  { "url": "...", "recipe": { ... } }
+Response: { "message": "Recipe saved", "newRecipe": { ... } }
+// Also generates embedding via OpenRouter</code></pre>
+
+  <h4>POST /api/recipe/query</h4>
+  <pre><code>Request:  { "question": "Can I use olive oil instead?", "ingredients": [...] }
+Response: { "answer": "Yes! Olive oil works great..." }</code></pre>
+
+  <h4>POST /api/recipe/rag</h4>
+  <pre><code>// Mode: "suggest"
+Request:  { "query": "something spicy", "mode": "suggest" }
+Response: { "recipes": [{ title, recipe, score }, ...] }
+
+// Mode: "generate"
+Request:  { "query": "high protein dinner", "mode": "generate" }
+Response: { "recipe": { title, ingredients, steps }, "recipes": [...] }</code></pre>
+
+  <h4>GET /api/recipe/history</h4>
+  <pre><code>Response: [{ _id, title, url, recipe, createdAt }, ...]  // sorted by createdAt desc</code></pre>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- SECTION 12: UI WIREFRAMES                                      -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section id="s12" class="page-break">
+  <div class="section-header">
+    <div class="section-number">Section 12</div>
+    <h2>UI Wireframes & Screen Flow</h2>
+  </div>
+
+  <h3>Screen Navigation Flow</h3>
+  <svg class="svg-diagram" viewBox="0 0 800 180" xmlns="http://www.w3.org/2000/svg">
+    <rect width="800" height="180" fill="#12121a" rx="12"/>
+
+    <rect x="30" y="50" width="130" height="80" rx="12" fill="#1a1a28" stroke="#ef4444" stroke-width="2"/>
+    <text x="95" y="80" text-anchor="middle" fill="#ef4444" font-family="Inter" font-size="10" font-weight="700">AUTH PAGE</text>
+    <text x="95" y="98" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="7">Login / Signup</text>
+    <text x="95" y="112" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="7">Glassmorphism card</text>
+
+    <line x1="162" y1="90" x2="228" y2="90" stroke="#f59e0b" stroke-width="2" marker-end="url(#arrow-amber)"/>
+    <text x="195" y="82" text-anchor="middle" fill="#f59e0b" font-family="Inter" font-size="7" font-weight="700">JWT</text>
+
+    <rect x="230" y="50" width="130" height="80" rx="12" fill="#1a1a28" stroke="#3b82f6" stroke-width="2"/>
+    <text x="295" y="76" text-anchor="middle" fill="#3b82f6" font-family="Inter" font-size="10" font-weight="700">HOME</text>
+    <text x="295" y="92" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="7">"Taste Explosion"</text>
+    <text x="295" y="104" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="7">URL input + RAG</text>
+    <text x="295" y="116" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="7">(recipe === null)</text>
+
+    <line x1="362" y1="75" x2="428" y2="75" stroke="#f59e0b" stroke-width="2" marker-end="url(#arrow-amber)"/>
+    <text x="395" y="67" text-anchor="middle" fill="#f59e0b" font-family="Inter" font-size="7" font-weight="700">ENGAGE</text>
+
+    <rect x="430" y="25" width="130" height="55" rx="12" fill="#f59e0b20" stroke="#f59e0b" stroke-width="2"/>
+    <text x="495" y="50" text-anchor="middle" fill="#f59e0b" font-family="Inter" font-size="10" font-weight="700">SUPERNOVA</text>
+    <text x="495" y="66" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="7">2s cinematic transition</text>
+
+    <line x1="562" y1="52" x2="598" y2="52" stroke="#f59e0b" stroke-width="2" marker-end="url(#arrow-amber)"/>
+
+    <rect x="600" y="25" width="170" height="80" rx="12" fill="#1a1a28" stroke="#22c55e" stroke-width="2"/>
+    <text x="685" y="50" text-anchor="middle" fill="#22c55e" font-family="Inter" font-size="10" font-weight="700">DASHBOARD</text>
+    <text x="685" y="66" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="7">3-column layout</text>
+    <text x="685" y="78" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="7">Ingredients | Steps | Chat</text>
+    <text x="685" y="90" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="7">(recipe !== null)</text>
+
+    <!-- Saved Recipes -->
+    <line x1="295" y1="132" x2="295" y2="158" stroke="#a855f7" stroke-width="1.5" marker-end="url(#arrow-purple)"/>
+    <rect x="230" y="125" width="130" height="45" rx="10" fill="#1a1a28" stroke="#a855f7" stroke-width="1.5"/>
+    <text x="295" y="146" text-anchor="middle" fill="#a855f7" font-family="Inter" font-size="9" font-weight="700">SAVED RECIPES</text>
+    <text x="295" y="160" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="7">Grid of recipe cards</text>
+
+    <!-- Reset arrow -->
+    <path d="M 685 107 Q 685 155 295 132" stroke="#ef4444" stroke-width="1.5" fill="none" stroke-dasharray="4,3" marker-end="url(#arrow-red)"/>
+    <text x="500" y="145" text-anchor="middle" fill="#ef4444" font-family="Inter" font-size="7" font-weight="600">Reset (setRecipe(null))</text>
+  </svg>
+
+  <h3>Wireframe: Home Screen</h3>
+  <div class="wireframe" style="grid-template-columns: 1fr; max-width: 700px; margin: 2rem auto;">
+    <div class="wire-box" style="padding: 3rem 2rem;">
+      <div class="wire-label">HEADER</div>
+      <div class="wire-content" style="display: flex; justify-content: space-between; align-items: center;">
+        <div>🍳 <strong>Bite</strong> Bot</div>
+        <div>[Dark/Light] [Saved] [Logout]</div>
+      </div>
+    </div>
+    <div class="wire-box" style="padding: 4rem 2rem; text-align: center;">
+      <div class="wire-label">HERO SECTION</div>
+      <div class="wire-content">
+        <div style="font-size: 0.7rem; color: var(--accent); margin-bottom: 1rem;">✨ KITCHEN ASSISTANT</div>
+        <div style="font-size: 2rem; font-weight: 900; letter-spacing: -0.03em;">Taste<br/><span style="color: var(--accent); font-style: italic;">Explosion</span></div>
+        <p style="margin: 1rem 0; font-size: 0.85rem;">Import your favorite masterclasses...</p>
+        <div style="border: 2px dashed var(--border); border-radius: 999px; padding: 1rem; display: flex; gap: 1rem; align-items: center; max-width: 500px; margin: 0 auto;">
+          <span>🔍</span>
+          <span style="flex: 1; text-align: left; color: var(--text-muted);">Import Masterclass or Reel URL...</span>
+          <span style="background: var(--accent); color: #000; padding: 0.5rem 1.5rem; border-radius: 999px; font-weight: 800; font-size: 0.8rem;">ENGAGE →</span>
+        </div>
+      </div>
+    </div>
+    <div class="wire-box" style="padding: 2rem;">
+      <div class="wire-label">RAG SECTION — "What are you craving?"</div>
+      <div class="wire-content">
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <span style="flex: 1; border: 1px dashed var(--border); padding: 0.5rem; border-radius: 8px;">e.g. something spicy with paneer...</span>
+          <span class="chip acc">Suggest</span>
+          <span class="chip purple">Create New</span>
+        </div>
+        <div style="margin-top: 1rem; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem;">
+          <div style="border: 1px dashed var(--border); padding: 0.8rem; border-radius: 8px; font-size: 0.75rem;">🥘 Recipe Card 1</div>
+          <div style="border: 1px dashed var(--border); padding: 0.8rem; border-radius: 8px; font-size: 0.75rem;">🍗 Recipe Card 2</div>
+          <div style="border: 1px dashed var(--border); padding: 0.8rem; border-radius: 8px; font-size: 0.75rem;">🌮 Recipe Card 3</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Wireframe: Recipe Dashboard (Desktop — 3 columns)</h3>
+  <div class="wireframe" style="grid-template-columns: 3fr 6fr 3fr; max-width: 900px; margin: 2rem auto;">
+    <div class="wire-box" style="min-height: 300px;">
+      <div class="wire-label">COL 1 — ELEMENTS (Ingredients)</div>
+      <div class="wire-content" style="font-size: 0.75rem; text-align: left;">
+        <div style="border: 1px dashed var(--border); border-radius: 12px; padding: 0.8rem; margin-bottom: 0.6rem;">
+          🍗 <strong>Chicken</strong> — 500g<br/>
+          <span style="color: var(--text-muted); font-size: 0.65rem;">Click to expand: protein, fat, carbs, vitamins, purpose, impact</span>
+        </div>
+        <div style="border: 1px dashed var(--border); border-radius: 12px; padding: 0.8rem; margin-bottom: 0.6rem;">
+          🧅 <strong>Onion</strong> — 2 medium
+        </div>
+        <div style="border: 1px dashed var(--border); border-radius: 12px; padding: 0.8rem; margin-bottom: 0.6rem;">
+          🧄 <strong>Garlic</strong> — 4 cloves
+        </div>
+        <div style="color: var(--text-muted);">...more ingredients...</div>
+      </div>
+    </div>
+    <div class="wire-box" style="min-height: 300px;">
+      <div class="wire-label">COL 2 — THE ATELIER (Steps)</div>
+      <div class="wire-content">
+        <div style="color: var(--accent); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.3em; margin-bottom: 2rem;">STAGE 1 OF 8</div>
+        <div style="font-size: 1.5rem; font-weight: 900; margin-bottom: 2rem;">Preheat oven to 200°C and line a baking tray</div>
+        <div style="display: flex; justify-content: center; gap: 1rem;">
+          <span style="border: 1px dashed var(--border); padding: 0.5rem 1rem; border-radius: 12px;">◀ Prev</span>
+          <span style="background: var(--accent); color: #000; padding: 0.5rem 1rem; border-radius: 50%; width: 3rem; height: 3rem; display: flex; align-items: center; justify-content: center;">▶</span>
+          <span style="border: 1px dashed var(--border); padding: 0.5rem 1rem; border-radius: 12px;">Next ▶</span>
+        </div>
+      </div>
+    </div>
+    <div class="wire-box" style="min-height: 300px;">
+      <div class="wire-label">COL 3 — AI CHAT</div>
+      <div class="wire-content" style="font-size: 0.75rem; text-align: left;">
+        <div style="color: var(--text-muted); text-align: center; margin-bottom: 1rem;">✨ Voice sync active</div>
+        <div style="background: var(--accent); color: #000; padding: 0.5rem; border-radius: 12px; margin-bottom: 0.5rem; text-align: right;">Can I skip butter?</div>
+        <div style="border: 1px dashed var(--border); padding: 0.5rem; border-radius: 12px;">You can use olive oil instead...</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align: center; margin: 1rem 0;">
+    <em style="color: var(--text-muted); font-size: 0.85rem;">🎤 Floating voice pill (bottom-right) appears when recipe is loaded</em>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- SECTION 13: SECURITY & RATE LIMITING                           -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section id="s13" class="page-break">
+  <div class="section-header">
+    <div class="section-number">Section 13</div>
+    <h2>Security & Rate Limiting</h2>
+  </div>
+
+  <h3>Three-Tier Rate Limiting</h3>
+  <table>
+    <thead><tr><th>Limiter</th><th>Scope</th><th>Window</th><th>Max Requests</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td><span class="chip green">Global</span></td><td>All endpoints</td><td>15 minutes</td><td>100</td><td>General protection against abuse</td></tr>
+      <tr><td><span class="chip acc">Recipe</span></td><td>/api/recipe/*</td><td>1 hour</td><td>10</td><td>Protect Groq + Supadata free API quotas</td></tr>
+      <tr><td><span class="chip red">Auth</span></td><td>/api/auth/*</td><td>15 minutes</td><td>20</td><td>Prevent brute-force login attacks</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Security Measures</h3>
+  <table>
+    <thead><tr><th>Measure</th><th>Implementation</th><th>Details</th></tr></thead>
+    <tbody>
+      <tr><td>Password Hashing</td><td><code>bcryptjs</code></td><td>10 salt rounds; passwords never stored in plain text</td></tr>
+      <tr><td>JWT Authentication</td><td><code>jsonwebtoken</code></td><td>Signed with secret; 7-day expiry; stateless</td></tr>
+      <tr><td>CORS Whitelist</td><td><code>cors()</code></td><td>Only localhost:5173 + Vercel domain allowed</td></tr>
+      <tr><td>Env Variables</td><td><code>dotenv</code></td><td>API keys in .env, never committed (.gitignore)</td></tr>
+      <tr><td>Trust Proxy</td><td><code>app.set("trust proxy", 1)</code></td><td>Correct IP for rate limiting behind Render/Vercel</td></tr>
+      <tr><td>Cookie Security</td><td>Base64 env var</td><td>YouTube cookies decoded at runtime, not in repo</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Environment Variables Required</h3>
+  <pre><code># backend/.env
+PORT=8000
+GROQ_API_KEY=gsk_...           # Groq API for Whisper + LLaMA
+SUPADATA_API_KEY=sd_...        # Supadata for YouTube captions
+OPENROUTER_API_KEY=sk-or_...   # OpenRouter for embeddings
+MONGO_URI=mongodb+srv://...    # MongoDB Atlas connection string
+JWT_SECRET=your_secret_key     # JWT signing secret
+YT_COOKIES_B64=...             # (Optional) Base64 YouTube cookies
+
+# frontend/.env
+VITE_API_URL=http://localhost:8000</code></pre>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- SECTION 14: DEPLOYMENT                                         -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section id="s14" class="page-break">
+  <div class="section-header">
+    <div class="section-number">Section 14</div>
+    <h2>Deployment Architecture</h2>
+  </div>
+
+  <svg class="svg-diagram" viewBox="0 0 700 220" xmlns="http://www.w3.org/2000/svg">
+    <rect width="700" height="220" fill="#12121a" rx="12"/>
+    <text x="350" y="25" text-anchor="middle" fill="#f59e0b" font-family="Inter" font-size="11" font-weight="800" letter-spacing="2">DEPLOYMENT ARCHITECTURE</text>
+
+    <rect x="30" y="50" width="200" height="70" rx="12" fill="#1a1a28" stroke="#3b82f6" stroke-width="2"/>
+    <text x="130" y="75" text-anchor="middle" fill="#3b82f6" font-family="Inter" font-size="10" font-weight="700">▲ VERCEL</text>
+    <text x="130" y="92" text-anchor="middle" fill="#e4e4ed" font-family="Inter" font-size="8">Frontend (React + Vite)</text>
+    <text x="130" y="106" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="7">bite-bot-recipe-ai.vercel.app</text>
+
+    <line x1="232" y1="85" x2="268" y2="85" stroke="#f59e0b" stroke-width="2" marker-end="url(#arrow-amber)"/>
+    <text x="250" y="78" text-anchor="middle" fill="#f59e0b" font-family="Inter" font-size="7">API</text>
+
+    <rect x="270" y="50" width="200" height="70" rx="12" fill="#1a1a28" stroke="#22c55e" stroke-width="2"/>
+    <text x="370" y="75" text-anchor="middle" fill="#22c55e" font-family="Inter" font-size="10" font-weight="700">🔷 RENDER</text>
+    <text x="370" y="92" text-anchor="middle" fill="#e4e4ed" font-family="Inter" font-size="8">Backend (Node + Express)</text>
+    <text x="370" y="106" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="7">Web Service (free tier)</text>
+
+    <line x1="472" y1="85" x2="498" y2="85" stroke="#f59e0b" stroke-width="2" marker-end="url(#arrow-amber)"/>
+
+    <rect x="500" y="50" width="170" height="70" rx="12" fill="#1a1a28" stroke="#a855f7" stroke-width="2"/>
+    <text x="585" y="75" text-anchor="middle" fill="#a855f7" font-family="Inter" font-size="10" font-weight="700">🍃 ATLAS</text>
+    <text x="585" y="92" text-anchor="middle" fill="#e4e4ed" font-family="Inter" font-size="8">MongoDB Atlas</text>
+    <text x="585" y="106" text-anchor="middle" fill="#8888a0" font-family="Inter" font-size="7">M0 Free Cluster + Vector Index</text>
+
+    <!-- External APIs -->
+    <rect x="100" y="150" width="120" height="50" rx="10" fill="#1a1a28" stroke="#a855f7" stroke-width="1.5"/>
+    <text x="160" y="180" text-anchor="middle" fill="#a855f7" font-family="Inter" font-size="8" font-weight="700">Groq Cloud</text>
+
+    <rect x="260" y="150" width="120" height="50" rx="10" fill="#1a1a28" stroke="#06b6d4" stroke-width="1.5"/>
+    <text x="320" y="180" text-anchor="middle" fill="#06b6d4" font-family="Inter" font-size="8" font-weight="700">Supadata.ai</text>
+
+    <rect x="420" y="150" width="120" height="50" rx="10" fill="#1a1a28" stroke="#f97316" stroke-width="1.5"/>
+    <text x="480" y="180" text-anchor="middle" fill="#f97316" font-family="Inter" font-size="8" font-weight="700">OpenRouter</text>
+
+    <line x1="370" y1="122" x2="160" y2="148" stroke="#a855f7" stroke-width="1" stroke-dasharray="4,3"/>
+    <line x1="370" y1="122" x2="320" y2="148" stroke="#06b6d4" stroke-width="1" stroke-dasharray="4,3"/>
+    <line x1="370" y1="122" x2="480" y2="148" stroke="#f97316" stroke-width="1" stroke-dasharray="4,3"/>
+  </svg>
+
+  <div class="columns">
+    <div>
+      <h4>Frontend Deployment (Vercel)</h4>
+      <ul>
+        <li>Connect GitHub repo → auto-deploy on push</li>
+        <li>Set <code>VITE_API_URL</code> env variable to Render URL</li>
+        <li>Build command: <code>vite build</code></li>
+        <li>Output: <code>dist/</code> folder</li>
+      </ul>
+    </div>
+    <div>
+      <h4>Backend Deployment (Render)</h4>
+      <ul>
+        <li>Web Service → connect GitHub repo</li>
+        <li>Start command: <code>node src/server.js</code></li>
+        <li>Set all env variables (GROQ, SUPADATA, etc.)</li>
+        <li>YouTube cookies via <code>YT_COOKIES_B64</code></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- SECTION 15: KEY CONCEPTS GLOSSARY                              -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section id="s15" class="page-break">
+  <div class="section-header">
+    <div class="section-number">Section 15</div>
+    <h2>Key Concepts Glossary</h2>
+  </div>
+
+  <table>
+    <thead><tr><th>Concept</th><th>What It Means</th><th>How It's Used Here</th></tr></thead>
+    <tbody>
+      <tr><td><strong>REST API</strong></td><td>Architectural style using HTTP methods (GET, POST, PUT, DELETE) to operate on resources</td><td>Backend exposes RESTful endpoints at <code>/api/recipe/*</code> and <code>/api/auth/*</code></td></tr>
+      <tr><td><strong>JWT</strong></td><td>JSON Web Token — encoded payload + signature for stateless authentication</td><td>Login returns JWT → frontend stores in localStorage → sends as Bearer token</td></tr>
+      <tr><td><strong>Middleware</strong></td><td>Functions that run between request and response in Express pipeline</td><td>CORS, JSON parsing, rate limiting, JWT verification</td></tr>
+      <tr><td><strong>CORS</strong></td><td>Cross-Origin Resource Sharing — browser security that blocks cross-domain requests</td><td><code>cors()</code> middleware whitelists frontend domains</td></tr>
+      <tr><td><strong>bcrypt</strong></td><td>Password hashing algorithm with salt rounds</td><td>10 rounds; signup hashes password, login compares hash</td></tr>
+      <tr><td><strong>Mongoose</strong></td><td>ODM (Object Document Mapper) for MongoDB and Node.js</td><td>Schemas for User and Recipe collections; connection management</td></tr>
+      <tr><td><strong>RAG</strong></td><td>Retrieval-Augmented Generation — combine search results with LLM generation</td><td>Embed query → vector search saved recipes → use as LLM context</td></tr>
+      <tr><td><strong>Vector Embedding</strong></td><td>Converting text to numerical vectors that capture semantic meaning</td><td>Recipe text → 1536-dim vector via <code>text-embedding-3-small</code></td></tr>
+      <tr><td><strong>Cosine Similarity</strong></td><td>Measures angle between two vectors (1 = identical, 0 = unrelated)</td><td>MongoDB Atlas $vectorSearch computes this at database level</td></tr>
+      <tr><td><strong>Glassmorphism</strong></td><td>UI design with semi-transparent backgrounds + blur + subtle borders</td><td><code>.glass-island</code> CSS class with <code>backdrop-filter: blur()</code></td></tr>
+      <tr><td><strong>SPA</strong></td><td>Single Page Application — one HTML page, JS handles all routing</td><td>React app in <code>index.html</code>; no page reloads, just state changes</td></tr>
+      <tr><td><strong>HMR</strong></td><td>Hot Module Replacement — update modules without full reload</td><td>Vite provides instant HMR during development</td></tr>
+      <tr><td><strong>Whisper</strong></td><td>OpenAI's speech-to-text model; available via Groq for fast inference</td><td>Converts downloaded MP3 audio to text transcript</td></tr>
+      <tr><td><strong>LLaMA 3.3</strong></td><td>Meta's open-source LLM; 70B parameter versatile model</td><td>Converts transcript to structured JSON recipe; answers Q&A</td></tr>
+      <tr><td><strong>yt-dlp</strong></td><td>Command-line tool to download video/audio from many sites</td><td>Downloads audio as MP3 from YouTube/Instagram (fallback strategy)</td></tr>
+      <tr><td><strong>Web Speech API</strong></td><td>Browser APIs for speech synthesis (TTS) and recognition (STT)</td><td>TTS reads cooking steps aloud; STT takes voice commands</td></tr>
+      <tr><td><strong>Framer Motion</strong></td><td>React animation library with spring physics</td><td>Supernova transition, staggered reveals, step flip animations</td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- SECTION 16: INTERVIEW Q&A                                      -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section id="s16" class="page-break">
+  <div class="section-header">
+    <div class="section-number">Section 16</div>
+    <h2>Interview Questions & Answers</h2>
+  </div>
+
+  <h3>Project Overview Questions</h3>
+
+  <div class="qa">
+    <div class="q">Can you explain your project in 2-3 sentences?</div>
+    <div class="a">Bite Bot is an AI-powered cooking assistant. You paste a YouTube or Instagram cooking video URL, the backend extracts the transcript using either the Supadata caption API or yt-dlp + Whisper AI, then LLaMA 3.3 converts it into a structured recipe with nutritional data. The frontend presents it in a cinematic, voice-controlled dashboard with AI chat and RAG-based personalized recipe suggestions.</div>
+  </div>
+
+  <div class="qa">
+    <div class="q">What's the most technically challenging part of this project?</div>
+    <div class="a">The multi-strategy transcript extraction. YouTube aggressively blocks bot downloads from cloud servers, so I implemented a smart fallback: first try Supadata API for captions (no download needed), and if that fails (no captions available), fall back to yt-dlp audio download + Whisper transcription. For Whisper, I also have a fallback from the turbo model to the standard model if rate-limited. This cascading fallback ensures reliability despite external service limitations.</div>
+  </div>
+
+  <div class="qa">
+    <div class="q">How does the RAG pipeline work?</div>
+    <div class="a">When a user saves a recipe, I generate a text embedding (1536-dimensional vector) from the recipe title and ingredients using OpenAI's text-embedding-3-small model via OpenRouter. This vector is stored in MongoDB alongside the recipe. When the user types "something spicy with chicken" in the craving search, I embed that query into the same vector space, then use MongoDB Atlas $vectorSearch to find the top 3 semantically similar recipes from that user's history. In "suggest" mode, I return those recipes. In "generate" mode, I feed those recipes as context to LLaMA 3.3, which generates a brand-new personalized recipe inspired by the user's flavor profile.</div>
+  </div>
+
+  <h3>Architecture & Design Questions</h3>
+
+  <div class="qa">
+    <div class="q">Why did you choose this tech stack?</div>
+    <div class="a">Node.js + Express for the backend because it uses the same language as the frontend (JavaScript), making context-switching minimal. Groq for AI inference because it provides extremely fast inference on open-source models with a generous free tier. React + Vite for the frontend because Vite's HMR is nearly instant. Tailwind CSS v4 for rapid styling. MongoDB Atlas because it offers free-tier vector search, which I needed for the RAG pipeline — this eliminated the need for a separate vector database like Pinecone.</div>
+  </div>
+
+  <div class="qa">
+    <div class="q">Why MVC + Service Layer pattern?</div>
+    <div class="a">Separation of concerns. Routes only handle URL mapping, controllers handle request/response logic, and services contain the reusable business logic (AI calls, downloads, etc.). This means if I want to swap Groq for OpenAI, I only change the service file. Controllers don't care about implementation details. It also makes the code testable — I can unit test services independently.</div>
+  </div>
+
+  <div class="qa">
+    <div class="q">How do you handle authentication?</div>
+    <div class="a">JWT-based stateless authentication. On signup, the password is hashed with bcrypt (10 rounds). On login, bcrypt.compare verifies the password, and a JWT is signed with a secret key (7-day expiry). The frontend stores this token in localStorage and sends it as a Bearer token in the Authorization header. The authMiddleware on the backend verifies the JWT on every protected route and extracts the user ID from the payload.</div>
+  </div>
+
+  <div class="qa">
+    <div class="q">Why not use React Router for navigation?</div>
+    <div class="a">The app only has two main views (Auth and Dashboard), and the Dashboard itself has two sub-views (Home and Recipe). Simple conditional rendering based on state (<code>isLoggedIn</code>, <code>recipe !== null</code>, <code>activeTab</code>) is sufficient. Adding React Router would be overengineering for this use case. If the app grew to 5+ pages, I'd definitely add it.</div>
+  </div>
+
+  <h3>Security Questions</h3>
+
+  <div class="qa">
+    <div class="q">How do you prevent API abuse?</div>
+    <div class="a">Three-tier rate limiting: a global limiter (100 requests per 15 minutes), a strict recipe limiter (10 per hour to protect Groq/Supadata free quotas), and an auth limiter (20 per 15 minutes to prevent brute-force login). I also use <code>trust proxy</code> so that Render's reverse proxy doesn't make all requests appear from the same IP.</div>
+  </div>
+
+  <div class="qa">
+    <div class="q">Are there any security concerns with your current approach?</div>
+    <div class="a">Yes, a few improvements I'd make: (1) Using HttpOnly cookies for JWT instead of localStorage would prevent XSS token theft. (2) Adding refresh tokens so the user doesn't need to re-login every 7 days. (3) Adding input validation/sanitization on the URL field to prevent injection. (4) CORS could be tightened to specific origins only.</div>
+  </div>
+
+  <h3>Frontend Questions</h3>
+
+  <div class="qa">
+    <div class="q">How does voice control work?</div>
+    <div class="a">I use the Web Speech API, which is built into modern browsers (best in Chrome). SpeechRecognition runs in continuous mode and listens for keywords: "next" advances the step, "back" goes to the previous step, "repeat" re-reads the current step. Any other phrase is treated as a question and sent to the AI chat endpoint. For text-to-speech, SpeechSynthesisUtterance reads each step aloud at 1.1x speed. Both are free, browser-native APIs with no external dependency.</div>
+  </div>
+
+  <div class="qa">
+    <div class="q">Explain the Supernova animation.</div>
+    <div class="a">When the user clicks ENGAGE and the recipe is ready, I set <code>isExploding = true</code> which renders a full-screen black overlay. Inside it, a food image (from Unsplash) animates: scale goes from 1 → 1.2 → 5, blur goes from 0 → 10px → 80px, and opacity goes 0 → 1 → 0 — all over 2 seconds. The "Bite Bot" text simultaneously scales and fades. After 2 seconds, the recipe state is set and the overlay is removed, revealing the dashboard with a staggered spring animation on each column.</div>
+  </div>
+
+  <h3>Database & Scaling Questions</h3>
+
+  <div class="qa">
+    <div class="q">How does MongoDB Atlas Vector Search work?</div>
+    <div class="a">Atlas Vector Search creates a specialized index (I named mine "recipe_vector_index") on the embedding field. It uses an Approximate Nearest Neighbor (ANN) algorithm to find similar vectors efficiently. In my aggregation pipeline, $vectorSearch takes the query vector, searches 50 candidates, returns the top 20 with a vectorSearchScore metadata. I then filter those to the current user and take the top 3. This is much faster than computing cosine similarity in JavaScript for large datasets.</div>
+  </div>
+
+  <div class="qa">
+    <div class="q">How would you scale this app?</div>
+    <div class="a">Several improvements: (1) Add Redis for caching frequently requested recipes and rate limit storage. (2) Queue long-running tasks (audio download + transcription) with a job queue like BullMQ. (3) Add WebSocket for real-time progress updates instead of blocking the HTTP request. (4) Split the monolithic Dashboard.jsx into smaller components. (5) Add a CDN for frontend assets. (6) Move to a paid MongoDB Atlas tier with auto-scaling.</div>
+  </div>
+
+  <h3>Code Quality Questions</h3>
+
+  <div class="qa">
+    <div class="q">What would you improve if you had more time?</div>
+    <div class="a">(1) Break up Dashboard.jsx (1066 lines) into smaller components — Sidebar, StepViewer, ChatPanel, etc. (2) Add error boundaries and loading skeletons instead of simple spinners. (3) Add TypeScript for type safety. (4) Write unit tests for the service layer. (5) Add input validation using Joi or Zod. (6) Implement proper error handling middleware. (7) Add WebSocket for real-time transcription progress. (8) Add recipe sharing and social features.</div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- SECTION 17: TROUBLESHOOTING                                    -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section id="s17" class="page-break">
+  <div class="section-header">
+    <div class="section-number">Section 17</div>
+    <h2>Troubleshooting Quick Reference</h2>
+  </div>
+
+  <table>
+    <thead><tr><th>Problem</th><th>Cause</th><th>Fix</th></tr></thead>
+    <tbody>
+      <tr><td><code>npm error Missing script</code></td><td>Running from wrong directory</td><td><code>cd backend</code> or <code>cd frontend</code> first</td></tr>
+      <tr><td><code>CORS error</code> in browser</td><td>Backend not running / wrong port</td><td>Start backend on port 8000; check CORS whitelist</td></tr>
+      <tr><td><code>429 Too Many Requests</code></td><td>Groq / rate limiter hit</td><td>Wait 60s (Groq) or 15min/1hr (rate limits)</td></tr>
+      <tr><td>Audio download fails</td><td>yt-dlp bot detection / private video</td><td>Try a video with captions; or update yt-dlp</td></tr>
+      <tr><td>Voice commands don't work</td><td>Browser doesn't support Speech API</td><td>Use Chrome (best support)</td></tr>
+      <tr><td><code>GROQ_API_KEY</code> error</td><td>Wrong or expired key</td><td>Generate new key at console.groq.com</td></tr>
+      <tr><td>Blank frontend page</td><td>node_modules not installed</td><td><code>npm install</code> in frontend/</td></tr>
+      <tr><td>MongoDB connection fails</td><td>Wrong MONGO_URI or IP whitelist</td><td>Check Atlas → Network Access → whitelist your IP</td></tr>
+      <tr><td>Vector search returns empty</td><td>No vector index or wrong name</td><td>Create "recipe_vector_index" in Atlas Search</td></tr>
+      <tr><td>Embeddings fail</td><td>OPENROUTER_API_KEY missing</td><td>Add key from openrouter.ai to .env</td></tr>
+      <tr><td>JWT "Invalid token"</td><td>Token expired or JWT_SECRET mismatch</td><td>Re-login; ensure same JWT_SECRET between deploys</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Quick Start Commands</h3>
+  <pre><code># Terminal 1 — Backend
+cd recipe-ai-app/backend
+npm install
+npm run dev          # → Server running on port 8000
+
+# Terminal 2 — Frontend
+cd recipe-ai-app/frontend
+npm install
+npm run dev          # → http://localhost:5173</code></pre>
+
+  <div class="separator"></div>
+
+  <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
+    <p style="font-size: 2rem; margin-bottom: 1rem;">🍳</p>
+    <p style="font-size: 1.2rem; font-weight: 800; color: var(--accent); letter-spacing: 0.1em;">End of Documentation</p>
+    <p style="font-size: 0.85rem; margin-top: 1rem;">Built with 💛 for interview preparation</p>
+    <p style="font-size: 0.7rem; margin-top: 0.5rem; color: var(--text-muted);">To save as PDF: Cmd+P → Save as PDF</p>
+  </div>
+</section>
+
+</div>
+</body>
+</html>
