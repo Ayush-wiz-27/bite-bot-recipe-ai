@@ -114,23 +114,6 @@ Instructions:
 
     let answer;
     try {
-      const completion = await openai.chat.completions.create({
-        model: "llama-3.3-70b-versatile",
-        messages: [
-          {
-            role: "user",
-            content: prompt,
-          },
-        ],
-        temperature: 0.5,
-        max_tokens: 200,
-      });
-      answer = completion.choices[0].message.content;
-    } catch (groqErr) {
-      console.warn("⚠️ Groq ingredientQuery failed, trying OpenRouter fallback...", groqErr.message);
-      if (!process.env.OPENROUTER_API_KEY) {
-        throw groqErr;
-      }
       const completion = await openrouter.chat.completions.create({
         model: "meta-llama/llama-3.3-70b-instruct",
         messages: [
@@ -143,6 +126,9 @@ Instructions:
         max_tokens: 200,
       });
       answer = completion.choices[0].message.content;
+    } catch (err) {
+      console.error("OpenRouter ingredientQuery failed:", err.message);
+      throw err;
     }
 
     res.json({ answer });
@@ -313,19 +299,6 @@ Return ONLY valid JSON in this format:
 
     let generatedRecipe;
     try {
-      const completion = await openai.chat.completions.create({
-        model: "llama-3.3-70b-versatile",
-        messages: [{ role: "user", content: prompt }],
-        response_format: { type: "json_object" },
-        temperature: 0.3,
-        max_tokens: 2000,
-      });
-      generatedRecipe = JSON.parse(completion.choices[0].message.content);
-    } catch (groqErr) {
-      console.warn("⚠️ Groq ragQuery failed, trying OpenRouter fallback...", groqErr.message);
-      if (!process.env.OPENROUTER_API_KEY) {
-        throw groqErr;
-      }
       const completion = await openrouter.chat.completions.create({
         model: "meta-llama/llama-3.3-70b-instruct",
         messages: [{ role: "user", content: prompt }],
@@ -334,6 +307,9 @@ Return ONLY valid JSON in this format:
         max_tokens: 2000,
       });
       generatedRecipe = JSON.parse(completion.choices[0].message.content);
+    } catch (err) {
+      console.error("OpenRouter ragQuery failed:", err.message);
+      throw err;
     }
 
     res.json({
