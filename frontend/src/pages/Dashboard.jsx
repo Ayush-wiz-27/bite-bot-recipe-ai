@@ -242,7 +242,11 @@ export default function Dashboard({ setIsLoggedIn }) {
 
       if (mode === "suggest") {
         setRagResults(data.recipes || []);
-        setRagAnswer("");
+        if (data.recipes && data.recipes.length > 0) {
+          setRagAnswer("");
+        } else {
+          setRagAnswer("I couldn't find any recipes in your Saved collection that match this craving. Try importing a new one!");
+        }
       } else {
         // Generate mode — load recipe like ENGAGE does
         if (data.recipe) {
